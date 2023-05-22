@@ -12,8 +12,8 @@ function stringifyQuery(query: any): string {
 interface EruConfig extends RequestInit {
   rootPath?: string
   authTokenKey?: string
-  onError?: (type: Request['method'], e: Error) => void
-  onLoading?: (isLoading: boolean) => void
+  // onError?: (type: Request['method'], e: Error) => void
+  // onLoading?: (isLoading: boolean) => void
 }
 
 export const cfg: EruConfig = {
@@ -34,8 +34,8 @@ async function handle<T>(path: string, options: any): Promise<T | Error> {
   if (cfg.authTokenKey)
     options.headers.Authorization = `Bearer ${localStorage.getItem(cfg?.authTokenKey)}`
 
-  if (cfg.onLoading)
-    cfg.onLoading(true)
+  // if (cfg.onLoading)
+  //   cfg.onLoading(true)
 
   if (options.body)
     options.body = JSON.stringify(options.body)
@@ -43,7 +43,7 @@ async function handle<T>(path: string, options: any): Promise<T | Error> {
   return fetch(path, options)
     .then(async (res) => {
       return res.text().then((text: string) => {
-        if (res.status !== 200) {
+        if (!res.ok) {
           let message = null
           try {
             const parsed = JSON.parse(text)

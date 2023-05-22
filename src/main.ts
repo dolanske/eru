@@ -20,47 +20,86 @@ function stringifyQuery(query: any): string {
   return searchParams ? '?' + searchParams : ''
 }
 
-function noop() {
-
-}
-
-
 interface EruConfig extends RequestInit {
+  tokenKey?: string
   rootPath?: string
-  onError?: (type?: RequestInfo['method'], e: Error) => void
+  useAuth?: boolean
+  onError?: (type: Request['method'], e: Error) => void
+  onLoading?: (isLoading: boolean) => void
 }
 
 export const cfg: EruConfig = {
+  mode: 'cors',
   rootPath: '',
+  useAuth: false,
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
   },
 }
 
-function setupEru(config: EruConfig) {
+export function setupEru(config: EruConfig) {
   Object.assign(cfg, config)
 }
 
-function handle<T>(path: string, options: any): Promise<T> {
+async function handle<T>(path: string, options: any): Promise<T> {
+  const token = localStorage.getItem(cfg?.tokenKey ?? '')
+
+  if (token)
+    options.headers.Authorization = `Bearer ${token}`
+
+  if (cfg.onLoading)
+    cfg.onLoading(true)
+
+  options.body = JSON.stringify(options.body ?? '')
+
   return fetch(path, options)
-    .then((res) => res as T)
-    .catch(cfg.onError ?? noop)
+    .then((res) => {
+      return res.json().then(parsed => {
+
+      })
+    })
+    .catch((err) => {
+      if (cfg.onError)
+        cfg.onError(options.method, err)
+
+      return Promise.reject()
+    })
+    .finally(() => {
+      if (cfg.onLoading)
+      cfg.onLoading(false)
+    })
 }
 
 interface RequestOptions extends RequestInit {
-  query?: any
+  query?: any,
+  body?: any
 }
 
 export function eru(path: string) {
   return {
-    get: <T>(options: RequestOptions) => {
+    get: <T>(id?: number | RequestOptions, options?: RequestOptions) => {
+      const idStringPart = typeof id === 'number' ? `/${options}` : ''
+      const parsedOptions = typeof id === 'number' ? options : id
+
+      const GET_CONFIG = Object.assign(cfg, parsedOptions)
+      return handle<T>(cfg.rootPath + path + idStringPart + stringifyQuery(parsedOptions?.query), GET_CONFIG)
+    },
+    post: <T>(id: string | number, options?: RequestOptions) => {
       const getOptions = Object.assign(cfg, {
         method: 'POST',
       }, options)
 
-      return handle<T>(cfg.rootPath + path + stringifyQuery(options.query), getOptions)
+      return handle<T>(cfg.rootPath + path + `/${id}` + stringifyQuery(options?.query), getOptions)
     }
   }
-
 }
+
+// usage
+
+// setupEru({
+//   rootPath: 'https://api.test.com'
+// })
+
+// const users = eru('/user')
+// const test = users.get<{test: number}>()

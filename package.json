@@ -1,14 +1,16 @@
 {
-  "name": "eru-src",
-  "private": true,
-  "version": "0.0.0",
+  "name": "eru",
   "type": "module",
+  "version": "0.0.1",
+  "private": true,
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^0.39.1",
+    "eslint": "^8.41.0",
     "typescript": "^5.0.2",
     "vite": "^4.3.2",
     "vite-plugin-dts": "^2.3.0"

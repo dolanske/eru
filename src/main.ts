@@ -54,11 +54,8 @@ async function handle<T>(path: string, options: any): Promise<T> {
   options.body = JSON.stringify(options.body ?? '')
 
   return fetch(path, options)
+    .then(res => res.json())
     .then((res) => {
-      return res.json().then(parsed => {
-
-      })
-    })
     .catch((err) => {
       if (cfg.onError)
         cfg.onError(options.method, err)

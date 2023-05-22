@@ -34,4 +34,10 @@ someUserAPI.patch(2, {
     name: 'actually-different-name',
   },
 })
+
+someUserAPI.put(2, {
+  body: {
+    name: 'actually-different-name',
+  },
+})
 someUserAPI.delete(2)

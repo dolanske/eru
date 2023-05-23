@@ -12,6 +12,8 @@ function stringifyQuery(query: any): string {
 interface EruConfig extends RequestInit {
   rootPath?: string
   authTokenKey?: string
+  // TODO:  Figure out a nice ergonomic way for event listeners
+  //        These would be specifically useful when working with vue without having to supply a specific vue version
   // onError?: (type: Request['method'], e: Error) => void
   // onLoading?: (isLoading: boolean) => void
 }
@@ -62,9 +64,9 @@ async function handle<T>(path: string, options: any): Promise<T | Error> {
     })
 }
 
-interface RequestOptions extends Omit<EruConfig, 'body'> {
+interface RequestConfig<OptionalBodyType = string | object> extends Omit<EruConfig, 'body'> {
   query?: string | Record<string, string | number>
-  body: string | object
+  body: OptionalBodyType
 }
 
 // Helper method for seting up PUT, PATCH and POST requests as their functionality is exactly the same
@@ -85,14 +87,6 @@ function _patchBodyless<T>(method: 'GET' | 'DELETE' | 'POST', path: string, id: 
 }
 
 /**
- * Options merging hierchy
- *
- *  #1 Function options
- *  #2 Instance options
- *  #3 Global options
- */
-
-/**
  * Creates an API enxpoint instance with the provided path. Exposing all the fetching methods.
  *
  * @param path Endpoint path partial
@@ -103,14 +97,14 @@ export function eru(path: string, options?: EruConfig) {
   const instanceOptions = options ?? {}
 
   return {
-    get: <T>(id?: string | number | Omit<RequestOptions, 'body'>, options?: RequestOptions) => {
+    get: <T>(id?: string | number | Omit<RequestConfig, 'body'>, options?: RequestConfig) => {
       const patchedId = (typeof id === 'number' || typeof id === 'string') ? `/${id}` : ''
       const parsedOptions = (typeof id === 'number' || typeof id === 'string') ? options : id
       return _patchBodyless<T>('GET', path, patchedId, parsedOptions, instanceOptions)
     },
-    delete: <T>(id: number, options?: Omit<RequestOptions, 'body'>) => _patchBodyless<T>('DELETE', path, id, options, instanceOptions),
-    post: <T>(options: RequestOptions) => _patchBodyless<T>('POST', path, '', options, instanceOptions),
-    put: <T>(id: string | number, options: RequestOptions) => _patchBody<T>('PUT', path, id, options, instanceOptions),
-    patch: <T>(id: string | number, options: RequestOptions) => _patchBody<T>('PATCH', path, id, options, instanceOptions),
+    delete: <T>(id: number, options?: Omit<RequestConfig, 'body'>) => _patchBodyless<T>('DELETE', path, id, options, instanceOptions),
+    post: <T>(options: RequestConfig<T>) => _patchBodyless<T>('POST', path, '', options, instanceOptions),
+    put: <T>(id: string | number, options: RequestConfig<T>) => _patchBody<T>('PUT', path, id, options, instanceOptions),
+    patch: <T>(id: string | number, options: RequestConfig<T>) => _patchBody<T>('PATCH', path, id, options, instanceOptions),
   }
 }

@@ -17,10 +17,11 @@ interface User { name: string; email: string }
 
 peopleApi.get<User[]>() // => Promise<User[]>
 peopleApi.get<User>(1) // => Promise<User>
+
+// By supplying the interface in post/put/patch, you can also
 peopleApi.post<User>({
   body: {
     name: 'Hello world',
-    email: 'hello@example.com'
   },
 })
   .then(() => console.log('It worked'))
@@ -38,19 +39,19 @@ interface EruConfig extends RequestInit {
   authTokenKey?: string
 }
 
-interface RequestOptions extends Omit<EruConfig, 'body'> {
+interface RequestConfig<OptionalBodyType = string | object> extends Omit<EruConfig, 'body'> {
   // Object which will be stringified to the url query such as ?key=value&key=value,value2
   query?: string | Record<string, string | number>
   // Normal request wants body to be a string, but we allow an object
-  body?: string | object
+  body: OptionalBodyType
 }
 
 type Eru = (path: string, options?: EruConfig) => {
-  get<T>(id?: string | number | Omit<RequestOptions, 'body'>, options?: RequestOptions): Promise<T>
-  delete<T>(id: number, options?: Omit<RequestOptions, 'body'>): Promise<T>
-  post<T>(options: RequestOptions): Promise<T>
-  put<T>(id: string | number, options: RequestOptions): Promise<T>
-  patch<T>(id: string | number, options: RequestOptions): Promise<T>
+  get<T>(id?: string | number | Omit<RequestConfig, 'body'>, options?: RequestConfig): Promise<T>
+  delete<T>(id: number, options?: Omit<RequestConfig, 'body'>): Promise<T>
+  post<T>(options: RequestConfig<T>): Promise<T>
+  put<T>(id: string | number, options: RequestConfig<T>): Promise<T>
+  patch<T>(id: string | number, options: RequestConfig<T>): Promise<T>
 }
 ```
 
@@ -61,17 +62,17 @@ At any point you can supply a new `EruConfig` interface to the function. There a
 ```ts
 // 3. The global options object.
 //    Used to set up the rootPath or authentication token key
-setupEru({})
+setupEru(options: EruConfig)
 
 // 2. Instance options
 //    Used when some options should be modified for all calls to a specific endpoint
 
-const api = eru('/path', { ...options })
+const api = eru('/path', options: EruConfig)
 
 // 3. Fetch method
 //    Situational, per call settings. This settings object also contains two additional
-//    fields as documented in the `RequestOptions` interface
-api.get({ ...options })
+//    fields as documented in the `RequestConfig` interface
+api.get(options: RequestConfig)
 ```
 
 ---

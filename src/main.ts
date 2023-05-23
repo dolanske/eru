@@ -2,8 +2,14 @@ import { eru } from './eru'
 
 const test = eru('/')
 
-test.post({
+interface User {
+  name: string
+  age?: number
+}
+
+test.post<User>({
   body: {
-    test: 5,
+    name: 'Bello',
+    age: 10,
   },
 })

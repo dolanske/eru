@@ -3,6 +3,30 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "description": "Opinionated & configurable wrapper around the fetch API ",
+  "author": "dolanske",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dolanske/eru.git"
+  },
+  "keywords": [
+    "javascript",
+    "typescript",
+    "fetch",
+    "fetch-api"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/eru.mjs"
+    }
+  },
+  "main": "./dist/eru.mjs",
+  "module": "./dist/eru.mjs",
+  "types": "./dist/eru.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

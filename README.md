@@ -1,4 +1,6 @@
-# eru
+# eru 得る
+
+Japanese for `get` (that's what google translate told be at least)
 
 Super simple wrapper around the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 
@@ -79,4 +81,4 @@ api.get(options: RequestConfig)
 
 ## Feedback / Contributions
 
-As usual, this library is to make my life easier when working on my personal projects. If you have any feedback, bugs, suggestions or just want to contribute, you're more than welcome to do so. I am open to any and all collaboration, so open an Issue or a PR! :)
+As usual, this library is to make my life easier when working on my personal projects. If you have any feedback, bugs, suggestions or just want to contribute, you're more than welcome to do so. I am open to any and all collaboration. So don't hesitate to open an Issue or a PR!

@@ -62,9 +62,9 @@ async function handle<T>(path: string, options: any): Promise<T | Error> {
     })
 }
 
-interface RequestOptions extends Omit<RequestInit, 'body'> {
+interface RequestOptions extends Omit<EruConfig, 'body'> {
   query?: string | Record<string, string | number>
-  body?: unknown
+  body: string | object
 }
 
 // Helper method for seting up PUT, PATCH and POST requests as their functionality is exactly the same
@@ -92,18 +92,25 @@ function _patchBodyless<T>(method: 'GET' | 'DELETE' | 'POST', path: string, id: 
  *  #3 Global options
  */
 
+/**
+ * Creates an API enxpoint instance with the provided path. Exposing all the fetching methods.
+ *
+ * @param path Endpoint path partial
+ * @param options Additional options
+ * @returns
+ */
 export function eru(path: string, options?: EruConfig) {
   const instanceOptions = options ?? {}
 
   return {
-    get: <T>(id?: string | number | RequestOptions, options?: RequestOptions) => {
+    get: <T>(id?: string | number | Omit<RequestOptions, 'body'>, options?: RequestOptions) => {
       const patchedId = (typeof id === 'number' || typeof id === 'string') ? `/${id}` : ''
       const parsedOptions = (typeof id === 'number' || typeof id === 'string') ? options : id
       return _patchBodyless<T>('GET', path, patchedId, parsedOptions, instanceOptions)
     },
-    delete: <T>(id: number, options?: RequestOptions) => _patchBodyless<T>('DELETE', path, id, options, instanceOptions),
-    post: <T>(options: Omit<RequestOptions, 'body'> & { body: unknown }) => _patchBodyless<T>('POST', path, '', options, instanceOptions),
-    put: <T>(id: string | number, options: Omit<RequestOptions, 'body'> & { body: unknown }) => _patchBody<T>('PUT', path, id, options, instanceOptions),
-    patch: <T>(id: string | number, options: Omit<RequestOptions, 'body'> & { body: unknown }) => _patchBody<T>('PATCH', path, id, options, instanceOptions),
+    delete: <T>(id: number, options?: Omit<RequestOptions, 'body'>) => _patchBodyless<T>('DELETE', path, id, options, instanceOptions),
+    post: <T>(options: RequestOptions) => _patchBodyless<T>('POST', path, '', options, instanceOptions),
+    put: <T>(id: string | number, options: RequestOptions) => _patchBody<T>('PUT', path, id, options, instanceOptions),
+    patch: <T>(id: string | number, options: RequestOptions) => _patchBody<T>('PATCH', path, id, options, instanceOptions),
   }
 }

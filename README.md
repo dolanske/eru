@@ -20,9 +20,10 @@ interface User { name: string; email: string }
 peopleApi.get<User[]>() // => Promise<User[]>
 peopleApi.get<User>(1) // => Promise<User>
 
-// By supplying the interface in post/put/patch, you can also
+// By supplying the interface in post/put/patch, you can also make typescript aware of missing fields
 peopleApi.post<User>({
   body: {
+    // Will complain about a missing `email` field
     name: 'Hello world',
   },
 })
@@ -68,7 +69,6 @@ setupEru(options: EruConfig)
 
 // 2. Instance options
 //    Used when some options should be modified for all calls to a specific endpoint
-
 const api = eru('/path', options: EruConfig)
 
 // 3. Fetch method

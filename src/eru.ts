@@ -42,7 +42,7 @@ async function handle<T>(path: string, options: any): Promise<T | Error> {
   if (options.body)
     options.body = JSON.stringify(options.body)
 
-  return fetch(path, options)
+  return fetch(options.rootPath + path, options)
     .then(async (res) => {
       return res.text().then((text: string) => {
         if (!res.ok) {
@@ -76,14 +76,14 @@ function _patchBody<T>(method: 'PUT' | 'PATCH' | 'POST', path: string, id: strin
     body: JSON.stringify(options.body),
   }, options)
 
-  return handle<T>(`${cfg.rootPath + path}/${id}${stringifyQuery(options?.query)}`, patchOptions)
+  return handle<T>(`${path}/${id}${stringifyQuery(options?.query)}`, patchOptions)
 }
 
 function _patchBodyless<T>(method: 'GET' | 'DELETE' | 'POST', path: string, id: string | number, options: any, instanceOptions: any) {
   const GET_CONFIG = Object.assign(cfg, instanceOptions, {
     method,
   }, options)
-  return handle<T>(cfg.rootPath + path + id + stringifyQuery(options?.query), GET_CONFIG)
+  return handle<T>(path + id + stringifyQuery(options?.query), GET_CONFIG)
 }
 
 /**

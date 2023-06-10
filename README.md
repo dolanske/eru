@@ -13,7 +13,7 @@ import { eru, setupEru } from './eru'
 setupEru({ rootPath: 'https://swapi.dev/api' })
 
 // Define a new API route (this will simply append )
-const peopleApi = eru('/people', { })
+const peopleApi = eru('/people')
 
 interface User { name: string; email: string }
 
@@ -60,10 +60,10 @@ type Eru = (path: string, options?: EruConfig) => {
 
 ## Configuration
 
-At any point you can supply a new `EruConfig` interface to the function. There are 3 steps to configuration, each overwriting the following one.
+At any point you can supply a new `EruConfig` interface to the function. There are 3 steps to configuration, each overwriting the previous one.
 
 ```ts
-// 3. The global options object.
+// 1. The global options object.
 //    Used to set up the rootPath or authentication token key
 setupEru(options: EruConfig)
 

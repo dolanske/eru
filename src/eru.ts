@@ -1,4 +1,3 @@
-// Taken from https://github.com/posva/mande/blob/b3358a06d4057cbbd953967284287ef7a10c69a5/src/index.ts#LL178C46-L178C46
 function stringifyQuery(query: any): string {
   if (!query)
     return ''
@@ -17,8 +16,6 @@ interface EruListeners {
 interface EruConfig extends RequestInit {
   rootPath?: string
   authTokenKey?: string
-  // TODO:  Figure out a nice ergonomic way for event listeners
-  //        These would be specifically useful when working with vue without having to supply a specific vue version
   on?: EruListeners
 }
 

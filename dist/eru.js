@@ -1,10 +1,10 @@
-function y(t) {
+function s(t) {
   if (!t)
     return "";
-  const c = Object.keys(t).map((n) => [n, t[n]].map(encodeURIComponent).join("=")).join("&");
-  return c ? `?${c}` : "";
+  const r = Object.keys(t).map((a) => [a, t[a]].map(encodeURIComponent).join("=")).join("&");
+  return r ? `?${r}` : "";
 }
-const a = {
+const u = {
   mode: "cors",
   rootPath: "",
   authTokenKey: void 0,
@@ -13,53 +13,66 @@ const a = {
     "Content-Type": "application/json"
   }
 };
-function h(t) {
-  Object.assign(a, t);
+function b(t) {
+  Object.assign(u, t);
 }
-async function d(t, c) {
-  return a.authTokenKey && (c.headers.Authorization = `Bearer ${localStorage.getItem(a == null ? void 0 : a.authTokenKey)}`), c.body && (c.body = JSON.stringify(c.body)), fetch(t, c).then(async (n) => n.text().then((e) => {
-    if (!n.ok) {
-      let r = null;
+async function m(t, r) {
+  var a;
+  return u.authTokenKey && (r.headers.Authorization = `Bearer ${localStorage.getItem(u == null ? void 0 : u.authTokenKey)}`), (a = r.on) != null && a.loading && r.on.loading(r.method, !0), r.body && (r.body = JSON.stringify(r.body)), fetch(r.rootPath + t, r).then(async (e) => e.text().then((n) => {
+    var y, h;
+    if (!e.ok) {
+      let d = null;
       try {
-        r = JSON.parse(e).message;
+        d = JSON.parse(n).message;
       } catch {
-        r = e;
+        d = n;
       }
-      return Promise.reject(new Error(
-        r || `An unexpected error occured: ${n.statusText}`
-      ));
+      const l = new Error(d || `An unexpected error occured: ${e.statusText}`);
+      return (y = r == null ? void 0 : r.on) != null && y.error && ((h = r.on) == null || h.error(r.method, l)), Promise.reject(l);
     }
-    return n;
-  }));
+    let c;
+    try {
+      c = JSON.parse(n);
+    } catch {
+      c = n;
+    }
+    return c;
+  })).catch((e) => {
+    var n, c;
+    return (n = r == null ? void 0 : r.on) != null && n.error && ((c = r.on) == null || c.error(r.method, e)), e;
+  }).finally(() => {
+    var e, n;
+    (e = r.on) != null && e.loading && ((n = r.on) == null || n.loading(r.method, !1));
+  });
 }
-function u(t, c, n, e, r) {
-  const o = Object.assign(a, r, {
+function g(t, r, a, e, n) {
+  const c = Object.assign(u, n, {
     method: t,
     body: JSON.stringify(e.body)
   }, e);
-  return d(`${a.rootPath + c}/${n}${y(e == null ? void 0 : e.query)}`, o);
+  return m(`${r}/${a}${s(e == null ? void 0 : e.query)}`, c);
 }
-function s(t, c, n, e, r) {
-  const o = Object.assign(a, r, {
+function f(t, r, a, e, n) {
+  const c = Object.assign(u, n, {
     method: t
   }, e);
-  return d(a.rootPath + c + n + y(e == null ? void 0 : e.query), o);
+  return m(r + a + s(e == null ? void 0 : e.query), c);
 }
-function i(t, c) {
-  const n = c ?? {};
+function T(t, r) {
+  const a = r ?? {};
   return {
-    get: (e, r) => {
-      const o = typeof e == "number" || typeof e == "string" ? `/${e}` : "";
-      return s("GET", t, o, typeof e == "number" || typeof e == "string" ? r : e, n);
+    get: (e, n) => {
+      const c = typeof e == "number" || typeof e == "string" ? `/${e}` : "";
+      return f("GET", t, c, typeof e == "number" || typeof e == "string" ? n : e, a);
     },
-    delete: (e, r) => s("DELETE", t, e, r, n),
-    post: (e) => s("POST", t, "", e, n),
-    put: (e, r) => u("PUT", t, e, r, n),
-    patch: (e, r) => u("PATCH", t, e, r, n)
+    delete: (e, n) => f("DELETE", t, e, n, a),
+    post: (e) => f("POST", t, "", e, a),
+    put: (e, n) => g("PUT", t, e, n, a),
+    patch: (e, n) => g("PATCH", t, e, n, a)
   };
 }
 export {
-  a as cfg,
-  i as eru,
-  h as setupEru
+  u as cfg,
+  T as eru,
+  b as setupEru
 };

@@ -1,6 +1,11 @@
+interface EruListeners {
+    error?: (type: Request['method'], e: Error) => void;
+    loading?: (type: Request['method'], isLoading: boolean) => void;
+}
 interface EruConfig extends RequestInit {
     rootPath?: string;
     authTokenKey?: string;
+    on?: EruListeners;
 }
 export declare const cfg: EruConfig;
 export declare function setupEru(config: EruConfig): void;

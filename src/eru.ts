@@ -9,13 +9,17 @@ function stringifyQuery(query: any): string {
   return searchParams ? `?${searchParams}` : ''
 }
 
+interface EruListeners {
+  error?: (type: Request['method'], e: Error) => void
+  loading?: (type: Request['method'], isLoading: boolean) => void
+}
+
 interface EruConfig extends RequestInit {
   rootPath?: string
   authTokenKey?: string
   // TODO:  Figure out a nice ergonomic way for event listeners
   //        These would be specifically useful when working with vue without having to supply a specific vue version
-  // onError?: (type: Request['method'], e: Error) => void
-  // onLoading?: (isLoading: boolean) => void
+  on?: EruListeners
 }
 
 export const cfg: EruConfig = {
@@ -32,12 +36,23 @@ export function setupEru(config: EruConfig) {
   Object.assign(cfg, config)
 }
 
-async function handle<T>(path: string, options: any): Promise<T | Error> {
+interface RequestConfig<OptionalBodyType = string | object> extends Omit<EruConfig, 'body'> {
+  query?: string | Record<string, string | number>
+  body: OptionalBodyType
+}
+
+// This is the final options object used within the handle function
+interface SerializedEruOptions extends EruConfig {
+  method: Request['method']
+}
+
+async function handle<T>(path: string, options: SerializedEruOptions): Promise<T | Error> {
   if (cfg.authTokenKey)
+    // @ts-expect-error options.headers are defined in the `cfg` defaults, which indeed are merged together in the patch functions
     options.headers.Authorization = `Bearer ${localStorage.getItem(cfg?.authTokenKey)}`
 
-  // if (cfg.onLoading)
-  //   cfg.onLoading(true)
+  if (options.on?.loading)
+    options.on.loading(options.method, true)
 
   if (options.body)
     options.body = JSON.stringify(options.body)
@@ -45,8 +60,11 @@ async function handle<T>(path: string, options: any): Promise<T | Error> {
   return fetch(options.rootPath + path, options)
     .then(async (res) => {
       return res.text().then((text: string) => {
+        // If something went wrong, we want to either get the error message from the request
+        // Or we add a generic error message if it is missing
         if (!res.ok) {
           let message = null
+
           try {
             const parsed = JSON.parse(text)
             message = parsed.message
@@ -54,24 +72,45 @@ async function handle<T>(path: string, options: any): Promise<T | Error> {
           catch (e) {
             message = text
           }
-          return Promise.reject(new Error(
-            message || `An unexpected error occured: ${res.statusText}`,
-          ))
+
+          const err = new Error(message || `An unexpected error occured: ${res.statusText}`)
+
+          if (options?.on?.error)
+            options.on?.error(options.method, err)
+
+          return Promise.reject(err)
         }
 
-        return res as T
+        // If everything went fine, we still want to check what type was returned
+        // API does not always return JSON
+        let okRes
+
+        try {
+          okRes = JSON.parse(text)
+        }
+        catch (e) {
+          // This will only catch if the response is not a JSON, meaning we are returning a string
+          okRes = text
+        }
+
+        return okRes as T
       })
     })
-}
+    .catch((err) => {
+      if (options?.on?.error)
+        options.on?.error(options.method, err)
 
-interface RequestConfig<OptionalBodyType = string | object> extends Omit<EruConfig, 'body'> {
-  query?: string | Record<string, string | number>
-  body: OptionalBodyType
+      return err
+    })
+    .finally(() => {
+      if (options.on?.loading)
+        options.on?.loading(options.method, false)
+    })
 }
 
 // Helper method for seting up PUT, PATCH and POST requests as their functionality is exactly the same
 function _patchBody<T>(method: 'PUT' | 'PATCH' | 'POST', path: string, id: string | number, options: any, instanceOptions: any) {
-  const patchOptions = Object.assign(cfg, instanceOptions, {
+  const patchOptions: SerializedEruOptions = Object.assign(cfg, instanceOptions, {
     method,
     body: JSON.stringify(options.body),
   }, options)
@@ -80,7 +119,7 @@ function _patchBody<T>(method: 'PUT' | 'PATCH' | 'POST', path: string, id: strin
 }
 
 function _patchBodyless<T>(method: 'GET' | 'DELETE' | 'POST', path: string, id: string | number, options: any, instanceOptions: any) {
-  const GET_CONFIG = Object.assign(cfg, instanceOptions, {
+  const GET_CONFIG: SerializedEruOptions = Object.assign(cfg, instanceOptions, {
     method,
   }, options)
   return handle<T>(path + id + stringifyQuery(options?.query), GET_CONFIG)

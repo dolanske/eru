@@ -11,6 +11,7 @@ function stringifyQuery(query: any): string {
 interface EruListeners {
   onError?: (error: Error, type: Request['method'],) => void
   onLoading?: (isLoading: boolean, type: Request['method']) => void
+  onDone?: (type: Request['method']) => void
 }
 
 interface EruConfig extends RequestInit, EruListeners {
@@ -63,9 +64,6 @@ async function handle<T>(path: string, options: SerializedEruOptions): Promise<T
           // If something went wrong, we want to either get the error message from the request
           // Or we add a generic error message if it is missing
           if (!res.ok) {
-            if (cfg.rejectDefault)
-              resolve(cfg.rejectDefault as T)
-
             let message = null
 
             try {
@@ -81,7 +79,10 @@ async function handle<T>(path: string, options: SerializedEruOptions): Promise<T
             if (options?.onError)
               options.onError(err, options.method)
 
-            reject(err)
+            if (cfg.rejectDefault)
+              resolve(cfg.rejectDefault)
+            else
+              reject(err)
           }
 
           // If everything went fine, we still want to check what type was returned
@@ -111,6 +112,9 @@ async function handle<T>(path: string, options: SerializedEruOptions): Promise<T
       .finally(() => {
         if (options.onLoading)
           options.onLoading(false, options.method)
+
+        if (options.onDone)
+          options.onDone(options.method)
       })
   })
 }

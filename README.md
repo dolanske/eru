@@ -40,6 +40,20 @@ peopleApi.post<User>({
 interface EruConfig extends RequestInit {
   rootPath?: string
   authTokenKey?: string
+  /**
+   * In case the request fails for any reason, instead of return an Error object masked as T,
+   * it will resolve as `resolve(cfg.rejectDefault as T).
+   * This is an equivalent of adding the following example to your code:
+   *
+   * `const res = api.get<Item[]>().catch(() => [])`
+   *
+   * You can still work with the error by adding the `onError` function in the options.
+   *
+   */
+  rejectDefault?: any
+  onError?: (error: Error, type: Request['method'],) => void
+  onLoading?: (isLoading: boolean, type: Request['method']) => void
+  onDone?: (type: Request['method']) => void
 }
 
 interface RequestConfig<OptionalBodyType = string | object> extends Omit<EruConfig, 'body'> {

@@ -1,7 +1,7 @@
 {
   "name": "@dolanske/eru",
   "type": "module",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "description": "Simple & opinionated wrapper around the Fetch API",
   "author": "dolanske",

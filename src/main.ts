@@ -6,7 +6,7 @@ setupEru({
   rootPath: 'https://swapi.dev/api',
 })
 
-const api = eru('/cum', {
+const api = eru('/test', {
   rejectDefault: [],
   onError: err => console.log(err),
 })
@@ -16,5 +16,3 @@ interface Api {
 }
 
 const people = await api.get<Api>()
-
-console.log(people)

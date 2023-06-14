@@ -1,22 +1,23 @@
-import { eru } from './eru'
+import { eru, setupEru } from './eru'
 
-const test = eru('/')
-
-interface User {
-  name: string
-  age?: number
-}
-
-const { signal, abort } = new AbortController()
-
-test.post<User>({
-  body: {
-    name: 'Bello',
-    age: 10,
-  },
-  signal,
+setupEru({
+  rootPath: 'https://swapi.dev/api',
+  rejectDefault: [],
 })
 
-setTimeout(() => {
-  abort()
-}, 10)
+const test = eru('/cum')
+
+interface Result {
+  count: number
+}
+
+test.get<Result[]>({
+  rejectDefault: [],
+  onLoading: state => console.log(state),
+
+})
+  .then((result) => {
+    console.log(result)
+  })
+
+const result = fetch('/test')

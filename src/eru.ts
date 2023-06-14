@@ -9,14 +9,16 @@ function stringifyQuery(query: any): string {
 }
 
 interface EruListeners {
-  error?: (type: Request['method'], e: Error) => void
-  loading?: (type: Request['method'], isLoading: boolean) => void
+  onError?: (error: Error, type: Request['method'],) => void
+  onLoading?: (isLoading: boolean, type: Request['method']) => void
 }
 
-interface EruConfig extends RequestInit {
+interface EruConfig extends RequestInit, EruListeners {
   rootPath?: string
   authTokenKey?: string
-  on?: EruListeners
+  // In case the promise is rejected, instead of reject(err),
+  // it'll use reject(cfg.rejectDefault) which for instance can be an empty array
+  rejectDefault?: any
 }
 
 export const cfg: EruConfig = {
@@ -48,61 +50,121 @@ async function handle<T>(path: string, options: SerializedEruOptions): Promise<T
     // @ts-expect-error options.headers are defined in the `cfg` defaults, which indeed are merged together in the patch functions
     options.headers.Authorization = `Bearer ${localStorage.getItem(cfg?.authTokenKey)}`
 
-  if (options.on?.loading)
-    options.on.loading(options.method, true)
+  if (options.onLoading)
+    options.onLoading(true, options.method)
 
   if (options.body)
     options.body = JSON.stringify(options.body)
 
-  return fetch(options.rootPath + path, options)
-    .then(async (res) => {
-      return res.text().then((text: string) => {
-        // If something went wrong, we want to either get the error message from the request
-        // Or we add a generic error message if it is missing
-        if (!res.ok) {
-          let message = null
+  return new Promise<T>((resolve, reject) => {
+    fetch(options.rootPath + path, options)
+      .then((res) => {
+        res.text().then((text: string) => {
+          // If something went wrong, we want to either get the error message from the request
+          // Or we add a generic error message if it is missing
+          if (!res.ok) {
+            if (cfg.rejectDefault)
+              resolve(cfg.rejectDefault as T)
+
+            let message = null
+
+            try {
+              const parsed = JSON.parse(text)
+              message = parsed.message
+            }
+            catch (e) {
+              message = text
+            }
+
+            const err = new Error(message || `[${res.status}] ${res.statusText}`)
+
+            if (options?.onError)
+              options.onError(err, options.method)
+
+            reject(err)
+          }
+
+          // If everything went fine, we still want to check what type was returned
+          // API does not always return JSON
+          let okRes
 
           try {
-            const parsed = JSON.parse(text)
-            message = parsed.message
+            okRes = JSON.parse(text)
           }
           catch (e) {
-            message = text
+            // This will only catch if the response is not a JSON, meaning we are returning a string
+            okRes = text
           }
 
-          const err = new Error(message || `An unexpected error occured: ${res.statusText}`)
-
-          if (options?.on?.error)
-            options.on?.error(options.method, err)
-
-          return Promise.reject(err)
-        }
-
-        // If everything went fine, we still want to check what type was returned
-        // API does not always return JSON
-        let okRes
-
-        try {
-          okRes = JSON.parse(text)
-        }
-        catch (e) {
-          // This will only catch if the response is not a JSON, meaning we are returning a string
-          okRes = text
-        }
-
-        return okRes as T
+          resolve(okRes)
+        })
       })
-    })
-    .catch((err) => {
-      if (options?.on?.error)
-        options.on?.error(options.method, err)
+      .catch((err) => {
+        if (options?.onError)
+          options.onError(err, options.method)
 
-      return err
-    })
-    .finally(() => {
-      if (options.on?.loading)
-        options.on?.loading(options.method, false)
-    })
+        if (cfg.rejectDefault)
+          resolve(cfg.rejectDefault as T)
+        else
+          reject(err)
+      })
+      .finally(() => {
+        if (options.onLoading)
+          options.onLoading(false, options.method)
+      })
+  })
+
+  // return fetch(options.rootPath + path, options)
+  //   .then(async (res) => {
+  //     return new Promise<T>((resolve, reject) => {
+  //       res.text().then((text: string) => {
+  //         // If something went wrong, we want to either get the error message from the request
+  //         // Or we add a generic error message if it is missing
+  //         if (!res.ok) {
+  //           let message = null
+
+  //           try {
+  //             const parsed = JSON.parse(text)
+  //             message = parsed.message
+  //           }
+  //           catch (e) {
+  //             message = text
+  //           }
+
+  //           const err = new Error(message || `[${res.status}] ${res.statusText}`)
+
+  //           if (options?.on?.error)
+  //             options.on?.error(options.method, err)
+
+  //           reject(err)
+  //         }
+
+  //         // If everything went fine, we still want to check what type was returned
+  //         // API does not always return JSON
+  //         let okRes
+
+  //         try {
+  //           okRes = JSON.parse(text)
+  //         }
+  //         catch (e) {
+  //           // This will only catch if the response is not a JSON, meaning we are returning a string
+  //           okRes = text
+  //         }
+
+  //         resolve(okRes)
+  //       })
+  //     })
+  //   })
+  //   .catch((err) => {
+  //     if (options?.on?.error)
+  //       options.on?.error(options.method, err)
+
+  //     return err
+  //   })
+  //   .finally(() => {
+  //     if (options.on?.loading)
+  //       options.on?.loading(options.method, false)
+  //   })
 }
 
 // Helper method for seting up PUT, PATCH and POST requests as their functionality is exactly the same

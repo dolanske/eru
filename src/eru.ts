@@ -43,7 +43,7 @@ interface SerializedEruOptions extends EruConfig {
   method: Request['method']
 }
 
-async function handle<T>(path: string, options: SerializedEruOptions): Promise<T | Error> {
+async function handle<T>(path: string, options: SerializedEruOptions): Promise<T> {
   if (cfg.authTokenKey)
     // @ts-expect-error options.headers are defined in the `cfg` defaults, which indeed are merged together in the patch functions
     options.headers.Authorization = `Bearer ${localStorage.getItem(cfg?.authTokenKey)}`

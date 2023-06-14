@@ -113,58 +113,6 @@ async function handle<T>(path: string, options: SerializedEruOptions): Promise<T
           options.onLoading(false, options.method)
       })
   })
-
-  // return fetch(options.rootPath + path, options)
-  //   .then(async (res) => {
-  //     return new Promise<T>((resolve, reject) => {
-  //       res.text().then((text: string) => {
-  //         // If something went wrong, we want to either get the error message from the request
-  //         // Or we add a generic error message if it is missing
-  //         if (!res.ok) {
-  //           let message = null
-
-  //           try {
-  //             const parsed = JSON.parse(text)
-  //             message = parsed.message
-  //           }
-  //           catch (e) {
-  //             message = text
-  //           }
-
-  //           const err = new Error(message || `[${res.status}] ${res.statusText}`)
-
-  //           if (options?.on?.error)
-  //             options.on?.error(options.method, err)
-
-  //           reject(err)
-  //         }
-
-  //         // If everything went fine, we still want to check what type was returned
-  //         // API does not always return JSON
-  //         let okRes
-
-  //         try {
-  //           okRes = JSON.parse(text)
-  //         }
-  //         catch (e) {
-  //           // This will only catch if the response is not a JSON, meaning we are returning a string
-  //           okRes = text
-  //         }
-
-  //         resolve(okRes)
-  //       })
-  //     })
-  //   })
-  //   .catch((err) => {
-  //     if (options?.on?.error)
-  //       options.on?.error(options.method, err)
-
-  //     return err
-  //   })
-  //   .finally(() => {
-  //     if (options.on?.loading)
-  //       options.on?.loading(options.method, false)
-  //   })
 }
 
 // Helper method for seting up PUT, PATCH and POST requests as their functionality is exactly the same

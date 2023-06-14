@@ -1,10 +1,10 @@
-function s(t) {
-  if (!t)
+function g(a) {
+  if (!a)
     return "";
-  const r = Object.keys(t).map((a) => [a, t[a]].map(encodeURIComponent).join("=")).join("&");
-  return r ? `?${r}` : "";
+  const e = Object.keys(a).map((c) => [c, a[c]].map(encodeURIComponent).join("=")).join("&");
+  return e ? `?${e}` : "";
 }
-const u = {
+const n = {
   mode: "cors",
   rootPath: "",
   authTokenKey: void 0,
@@ -13,66 +13,67 @@ const u = {
     "Content-Type": "application/json"
   }
 };
-function b(t) {
-  Object.assign(u, t);
+function O(a) {
+  Object.assign(n, a);
 }
-async function m(t, r) {
-  var a;
-  return u.authTokenKey && (r.headers.Authorization = `Bearer ${localStorage.getItem(u == null ? void 0 : u.authTokenKey)}`), (a = r.on) != null && a.loading && r.on.loading(r.method, !0), r.body && (r.body = JSON.stringify(r.body)), fetch(r.rootPath + t, r).then(async (e) => e.text().then((n) => {
-    var y, h;
-    if (!e.ok) {
-      let d = null;
-      try {
-        d = JSON.parse(n).message;
-      } catch {
-        d = n;
-      }
-      const l = new Error(d || `An unexpected error occured: ${e.statusText}`);
-      return (y = r == null ? void 0 : r.on) != null && y.error && ((h = r.on) == null || h.error(r.method, l)), Promise.reject(l);
-    }
-    let c;
-    try {
-      c = JSON.parse(n);
-    } catch {
-      c = n;
-    }
-    return c;
-  })).catch((e) => {
-    var n, c;
-    return (n = r == null ? void 0 : r.on) != null && n.error && ((c = r.on) == null || c.error(r.method, e)), e;
-  }).finally(() => {
-    var e, n;
-    (e = r.on) != null && e.loading && ((n = r.on) == null || n.loading(r.method, !1));
+async function m(a, e) {
+  return n.authTokenKey && (e.headers.Authorization = `Bearer ${localStorage.getItem(n == null ? void 0 : n.authTokenKey)}`), e.onLoading && e.onLoading(!0, e.method), e.body && (e.body = JSON.stringify(e.body)), new Promise((c, r) => {
+    fetch(e.rootPath + a, e).then((t) => {
+      t.text().then((u) => {
+        if (!t.ok) {
+          n.rejectDefault && c(n.rejectDefault);
+          let y = null;
+          try {
+            y = JSON.parse(u).message;
+          } catch {
+            y = u;
+          }
+          const h = new Error(y || `[${t.status}] ${t.statusText}`);
+          e != null && e.onError && e.onError(h, e.method), r(h);
+        }
+        let f;
+        try {
+          f = JSON.parse(u);
+        } catch {
+          f = u;
+        }
+        c(f);
+      });
+    }).catch((t) => {
+      e != null && e.onError && e.onError(t, e.method), n.rejectDefault ? c(n.rejectDefault) : r(t);
+    }).finally(() => {
+      e.onLoading && e.onLoading(!1, e.method);
+    });
   });
 }
-function g(t, r, a, e, n) {
-  const c = Object.assign(u, n, {
-    method: t,
-    body: JSON.stringify(e.body)
-  }, e);
-  return m(`${r}/${a}${s(e == null ? void 0 : e.query)}`, c);
+function l(a, e, c, r, t) {
+  const u = Object.assign(n, t, {
+    method: a,
+    body: JSON.stringify(r.body)
+  }, r);
+  return m(`${e}/${c}${g(r == null ? void 0 : r.query)}`, u);
 }
-function f(t, r, a, e, n) {
-  const c = Object.assign(u, n, {
-    method: t
-  }, e);
-  return m(r + a + s(e == null ? void 0 : e.query), c);
+function d(a, e, c, r, t) {
+  const u = Object.assign(n, t, {
+    method: a
+  }, r);
+  return m(e + c + g(r == null ? void 0 : r.query), u);
 }
-function T(t, r) {
-  const a = r ?? {};
+function b(a, e) {
+  const c = e ?? {};
   return {
-    get: (e, n) => {
-      const c = typeof e == "number" || typeof e == "string" ? `/${e}` : "";
-      return f("GET", t, c, typeof e == "number" || typeof e == "string" ? n : e, a);
+    get: (r, t) => {
+      const u = typeof r == "number" || typeof r == "string" ? `/${r}` : "";
+      return d("GET", a, u, typeof r == "number" || typeof r == "string" ? t : r, c);
     },
-    delete: (e, n) => f("DELETE", t, e, n, a),
-    post: (e) => f("POST", t, "", e, a),
-    put: (e, n) => g("PUT", t, e, n, a),
-    patch: (e, n) => g("PATCH", t, e, n, a)
+    delete: (r, t) => d("DELETE", a, r, t, c),
+    post: (r) => d("POST", a, "", r, c),
+    put: (r, t) => l("PUT", a, r, t, c),
+    patch: (r, t) => l("PATCH", a, r, t, c)
   };
 }
 export {
-  u as cfg,
-  T as eru,
-  b as setupEru
+  n as cfg,
+  b as eru,
+  O as setupEru
 };

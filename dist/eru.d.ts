@@ -1,11 +1,11 @@
 interface EruListeners {
-    error?: (type: Request['method'], e: Error) => void;
-    loading?: (type: Request['method'], isLoading: boolean) => void;
+    onError?: (error: Error, type: Request['method']) => void;
+    onLoading?: (isLoading: boolean, type: Request['method']) => void;
 }
-interface EruConfig extends RequestInit {
+interface EruConfig extends RequestInit, EruListeners {
     rootPath?: string;
     authTokenKey?: string;
-    on?: EruListeners;
+    rejectDefault?: any;
 }
 export declare const cfg: EruConfig;
 export declare function setupEru(config: EruConfig): void;
@@ -21,10 +21,10 @@ interface RequestConfig<OptionalBodyType = string | object> extends Omit<EruConf
  * @returns
  */
 export declare function eru(path: string, options?: EruConfig): {
-    get: <T>(id?: string | number | Omit<RequestConfig, 'body'>, options?: RequestConfig) => Promise<Error | T>;
-    delete: <T_1>(id: number, options?: Omit<RequestConfig, 'body'>) => Promise<Error | T_1>;
-    post: <T_2>(options: RequestConfig<T_2>) => Promise<Error | T_2>;
-    put: <T_3>(id: string | number, options: RequestConfig<T_3>) => Promise<Error | T_3>;
-    patch: <T_4>(id: string | number, options: RequestConfig<T_4>) => Promise<Error | T_4>;
+    get: <T>(id?: string | number | Omit<RequestConfig, 'body'>, options?: RequestConfig) => Promise<T>;
+    delete: <T_1>(id: number, options?: Omit<RequestConfig, 'body'>) => Promise<T_1>;
+    post: <T_2>(options: RequestConfig<T_2>) => Promise<T_2>;
+    put: <T_3>(id: string | number, options: RequestConfig<T_3>) => Promise<T_3>;
+    patch: <T_4>(id: string | number, options: RequestConfig<T_4>) => Promise<T_4>;
 };
 export {};

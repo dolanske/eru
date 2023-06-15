@@ -12,9 +12,10 @@ import { eru, setupEru } from './eru'
 // Global configuration. Should be called before any instances are created
 setupEru({ rootPath: 'https://swapi.dev/api' })
 
-// Define a new API route (this will simply append )
+// Define a new API route
 const peopleApi = eru('/people')
 
+// You can also pass in a type of the expected data
 interface User { name: string; email: string }
 
 peopleApi.get<User[]>() // => Promise<User[]>

@@ -3,16 +3,24 @@
 import { eru, setupEru } from './eru'
 
 setupEru({
-  rootPath: 'https://swapi.dev/api',
+  rootPath: 'https://hub.dummyapis.com/delay',
 })
 
-const api = eru('/test', {
-  rejectDefault: [],
-  onError: err => console.log(err),
+const Api = eru('/test')
+const start = performance.now()
+
+Api.get({
+  query: {
+    seconds: 3,
+  },
 })
+  .then(() => {
+    console.log(performance.now() - start)
+  })
+  .catch(() => {
+    console.log(performance.now() - start)
+  })
 
-interface Api {
-  count: number
-}
-
-const people = await api.get<Api>()
+// setTimeout(() => {
+//   Api.cancel()
+// }, 1500)

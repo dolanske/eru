@@ -27,8 +27,8 @@ export const cfg: EruConfig = {
   rootPath: '',
   authTokenKey: undefined,
   headers: {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json',
+    Accept: 'application/json',
+    // 'Content-Type': 'application/json',
   },
 }
 
@@ -36,9 +36,9 @@ export function setupEru(config: EruConfig) {
   Object.assign(cfg, config)
 }
 
-interface RequestConfig<OptionalBodyType = string | object> extends Omit<EruConfig, 'body'> {
+interface RequestConfig {
   query?: string | Record<string, string | number>
-  body: OptionalBodyType
+  body: any
 }
 
 // This is the final options object used within the handle function
@@ -153,8 +153,8 @@ export function eru(path: string, options?: EruConfig) {
       return _patchBodyless<T>('GET', path, patchedId, parsedOptions, instanceOptions)
     },
     delete: <T>(id: number, options?: Omit<RequestConfig, 'body'>) => _patchBodyless<T>('DELETE', path, id, options, instanceOptions),
-    post: <T>(options: RequestConfig<T>) => _patchBodyless<T>('POST', path, '', options, instanceOptions),
-    put: <T>(id: string | number, options: RequestConfig<T>) => _patchBody<T>('PUT', path, id, options, instanceOptions),
-    patch: <T>(id: string | number, options: RequestConfig<T>) => _patchBody<T>('PATCH', path, id, options, instanceOptions),
+    post: <T>(options: RequestConfig) => _patchBodyless<T>('POST', path, '', options, instanceOptions),
+    put: <T>(id: string | number, options: RequestConfig) => _patchBody<T>('PUT', path, id, options, instanceOptions),
+    patch: <T>(id: string | number, options: RequestConfig) => _patchBody<T>('PATCH', path, id, options, instanceOptions),
   }
 }

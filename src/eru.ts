@@ -18,8 +18,8 @@ interface EruConfig extends RequestInit, EruListeners {
   rootPath?: string
   authTokenKey?: string
   // In case the promise is rejected, instead of reject(err),
-  // it'll use reject(cfg.rejectDefault) which for instance can be an empty array
-  rejectDefault?: any
+  // it'll use reject(cfg.rejectReturn) which for instance can be an empty array
+  rejectReturn?: any
 }
 
 export const cfg: EruConfig = {
@@ -79,8 +79,8 @@ async function handle<T>(path: string, options: SerializedEruOptions): Promise<T
             if (options?.onError)
               options.onError(err, options.method)
 
-            if (cfg.rejectDefault)
-              resolve(cfg.rejectDefault)
+            if (cfg.rejectReturn)
+              resolve(cfg.rejectReturn)
             else
               reject(err)
           }
@@ -104,8 +104,8 @@ async function handle<T>(path: string, options: SerializedEruOptions): Promise<T
         if (options?.onError)
           options.onError(err, options.method)
 
-        if (cfg.rejectDefault)
-          resolve(cfg.rejectDefault as T)
+        if (cfg.rejectReturn)
+          resolve(cfg.rejectReturn as T)
         else
           reject(err)
       })
@@ -123,7 +123,7 @@ async function handle<T>(path: string, options: SerializedEruOptions): Promise<T
 function _patchBody<T>(method: 'PUT' | 'PATCH' | 'POST', path: string, id: string | number, options: any, instanceOptions: any) {
   const patchOptions: SerializedEruOptions = Object.assign(cfg, instanceOptions, {
     method,
-    body: JSON.stringify(options.body),
+    body: JSON.stringify(options?.body ?? {}),
   }, options)
 
   return handle<T>(`${path}/${id}${stringifyQuery(options?.query)}`, patchOptions)
@@ -136,6 +136,19 @@ function _patchBodyless<T>(method: 'GET' | 'DELETE' | 'POST', path: string, id: 
   return handle<T>(path + id + stringifyQuery(options?.query), GET_CONFIG)
 }
 
+interface EruInstance {
+  get: <T>(id?: string | number | Omit<RequestConfig, 'body'>, options?: RequestConfig) => Promise<T>
+  post: <T>(options: RequestConfig) => Promise<T>
+  put: <T>(id: string | number, options: RequestConfig) => Promise<T>
+  patch: <T>(id: string | number, options: RequestConfig) => Promise<T>
+  delete: <T>(id: number, options?: Omit<RequestConfig, 'body'>) => Promise<T>
+
+  /**
+   * Cancel all running requests for this Eru instance
+   */
+  cancel(): void
+}
+
 /**
  * Creates an API enxpoint instance with the provided path. Exposing all the fetching methods.
  *
@@ -143,8 +156,10 @@ function _patchBodyless<T>(method: 'GET' | 'DELETE' | 'POST', path: string, id: 
  * @param options Additional options
  * @returns
  */
-export function eru(path: string, options?: EruConfig) {
+export function eru(path: string, options?: EruConfig): EruInstance {
   const instanceOptions = options ?? {}
+  let controller = new AbortController()
+  instanceOptions.signal = controller.signal
 
   return {
     get: <T>(id?: string | number | Omit<RequestConfig, 'body'>, options?: RequestConfig) => {
@@ -152,9 +167,15 @@ export function eru(path: string, options?: EruConfig) {
       const parsedOptions = (typeof id === 'number' || typeof id === 'string') ? options : id
       return _patchBodyless<T>('GET', path, patchedId, parsedOptions, instanceOptions)
     },
-    delete: <T>(id: number, options?: Omit<RequestConfig, 'body'>) => _patchBodyless<T>('DELETE', path, id, options, instanceOptions),
-    post: <T>(options: RequestConfig) => _patchBodyless<T>('POST', path, '', options, instanceOptions),
+    post: <T>(options: RequestConfig) => _patchBody<T>('POST', path, '', options, instanceOptions),
     put: <T>(id: string | number, options: RequestConfig) => _patchBody<T>('PUT', path, id, options, instanceOptions),
     patch: <T>(id: string | number, options: RequestConfig) => _patchBody<T>('PATCH', path, id, options, instanceOptions),
+    delete: <T>(id: number, options?: Omit<RequestConfig, 'body'>) => _patchBodyless<T>('DELETE', path, id, options, instanceOptions),
+    cancel: () => {
+      // Abort all requests and assign a new abort controller instance
+      controller.abort()
+      controller = new AbortController()
+      instanceOptions.signal = controller.signal
+    },
   }
 }

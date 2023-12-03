@@ -1,7 +1,7 @@
 {
   "name": "@dolanske/eru",
   "type": "module",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "private": true,
   "description": "Simple & opinionated wrapper around the Fetch API",
   "author": "dolanske",
@@ -18,11 +18,11 @@
   ],
   "exports": {
     ".": {
-      "import": "./dist/eru.mjs"
+      "import": "./dist/eru.js"
     }
   },
-  "main": "./dist/eru.mjs",
-  "module": "./dist/eru.mjs",
+  "main": "./dist/eru.js",
+  "module": "./dist/eru.js",
   "types": "./dist/eru.d.ts",
   "files": [
     "dist"

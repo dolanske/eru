@@ -1,10 +1,10 @@
 function g(a) {
   if (!a)
     return "";
-  const e = Object.keys(a).map((c) => [c, a[c]].map(encodeURIComponent).join("=")).join("&");
+  const e = Object.keys(a).map((t) => [t, a[t]].map(encodeURIComponent).join("=")).join("&");
   return e ? `?${e}` : "";
 }
-const n = {
+const u = {
   mode: "cors",
   rootPath: "",
   authTokenKey: void 0,
@@ -14,66 +14,69 @@ const n = {
   }
 };
 function O(a) {
-  Object.assign(n, a);
+  Object.assign(u, a);
 }
 async function m(a, e) {
-  return n.authTokenKey && (e.headers.Authorization = `Bearer ${localStorage.getItem(n == null ? void 0 : n.authTokenKey)}`), e.onLoading && e.onLoading(!0, e.method), e.body && (e.body = JSON.stringify(e.body)), new Promise((c, r) => {
-    fetch(e.rootPath + a, e).then((t) => {
-      t.text().then((u) => {
-        if (!t.ok) {
-          n.rejectDefault && c(n.rejectDefault);
-          let y = null;
+  return u.authTokenKey && (e.headers.Authorization = `Bearer ${localStorage.getItem(u == null ? void 0 : u.authTokenKey)}`), e.onLoading && e.onLoading(!0, e.method), e.body && (e.body = JSON.stringify(e.body)), new Promise((t, n) => {
+    fetch(e.rootPath + a, e).then((r) => {
+      r.text().then((c) => {
+        if (!r.ok) {
+          let l = null;
           try {
-            y = JSON.parse(u).message;
+            l = JSON.parse(c).message;
           } catch {
-            y = u;
+            l = c;
           }
-          const h = new Error(y || `[${t.status}] ${t.statusText}`);
-          e != null && e.onError && e.onError(h, e.method), r(h);
+          const y = new Error(l || `[${r.status}] ${r.statusText}`);
+          e != null && e.onError && e.onError(y, e.method), u.rejectReturn ? t(u.rejectReturn) : n(y);
         }
         let f;
         try {
-          f = JSON.parse(u);
+          f = JSON.parse(c);
         } catch {
-          f = u;
+          f = c;
         }
-        c(f);
+        t(f);
       });
-    }).catch((t) => {
-      e != null && e.onError && e.onError(t, e.method), n.rejectDefault ? c(n.rejectDefault) : r(t);
+    }).catch((r) => {
+      e != null && e.onError && e.onError(r, e.method), u.rejectReturn ? t(u.rejectReturn) : n(r);
     }).finally(() => {
-      e.onLoading && e.onLoading(!1, e.method);
+      e.onLoading && e.onLoading(!1, e.method), e.onDone && e.onDone(e.method);
     });
   });
 }
-function l(a, e, c, r, t) {
-  const u = Object.assign(n, t, {
+function d(a, e, t, n, r) {
+  const c = Object.assign(u, r, {
     method: a,
-    body: JSON.stringify(r.body)
-  }, r);
-  return m(`${e}/${c}${g(r == null ? void 0 : r.query)}`, u);
+    body: JSON.stringify((n == null ? void 0 : n.body) ?? {})
+  }, n);
+  return m(`${e}/${t}${g(n == null ? void 0 : n.query)}`, c);
 }
-function d(a, e, c, r, t) {
-  const u = Object.assign(n, t, {
+function h(a, e, t, n, r) {
+  const c = Object.assign(u, r, {
     method: a
-  }, r);
-  return m(e + c + g(r == null ? void 0 : r.query), u);
+  }, n);
+  return m(e + t + g(n == null ? void 0 : n.query), c);
 }
-function b(a, e) {
-  const c = e ?? {};
-  return {
-    get: (r, t) => {
-      const u = typeof r == "number" || typeof r == "string" ? `/${r}` : "";
-      return d("GET", a, u, typeof r == "number" || typeof r == "string" ? t : r, c);
+function s(a, e) {
+  const t = e ?? {};
+  let n = new AbortController();
+  return t.signal = n.signal, {
+    get: (r, c) => {
+      const f = typeof r == "number" || typeof r == "string" ? `/${r}` : "";
+      return h("GET", a, f, typeof r == "number" || typeof r == "string" ? c : r, t);
     },
-    delete: (r, t) => d("DELETE", a, r, t, c),
-    post: (r) => d("POST", a, "", r, c),
-    put: (r, t) => l("PUT", a, r, t, c),
-    patch: (r, t) => l("PATCH", a, r, t, c)
+    post: (r) => d("POST", a, "", r, t),
+    put: (r, c) => d("PUT", a, r, c, t),
+    patch: (r, c) => d("PATCH", a, r, c, t),
+    delete: (r, c) => h("DELETE", a, r, c, t),
+    cancel: () => {
+      n.abort(), n = new AbortController(), t.signal = n.signal;
+    }
   };
 }
 export {
-  n as cfg,
-  b as eru,
+  u as cfg,
+  s as eru,
   O as setupEru
 };

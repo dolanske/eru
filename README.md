@@ -12,9 +12,10 @@ import { eru, setupEru } from './eru'
 // Global configuration. Should be called before any instances are created
 setupEru({ rootPath: 'https://swapi.dev/api' })
 
-// Define a new API route (this will simply append )
+// Define a new API route
 const peopleApi = eru('/people')
 
+// You can also pass in a type of the expected data
 interface User { name: string; email: string }
 
 peopleApi.get<User[]>() // => Promise<User[]>
@@ -28,7 +29,7 @@ peopleApi.post<User>({
   },
 })
   .then(() => console.log('It worked'))
-  .catch(e => console.error(e))
+  .catch(console.error)
 ```
 
 ---
@@ -42,7 +43,7 @@ interface EruConfig extends RequestInit {
   authTokenKey?: string
   /**
    * In case the request fails for any reason, instead of return an Error object masked as T,
-   * it will resolve as `resolve(cfg.rejectDefault as T).
+   * it will resolve as `resolve(cfg.rejectReturn as T).
    * This is an equivalent of adding the following example to your code:
    *
    * `const res = api.get<Item[]>().catch(() => [])`
@@ -50,7 +51,7 @@ interface EruConfig extends RequestInit {
    * You can still work with the error by adding the `onError` function in the options.
    *
    */
-  rejectDefault?: any
+  rejectReturn?: any
   onError?: (error: Error, type: Request['method'],) => void
   onLoading?: (isLoading: boolean, type: Request['method']) => void
   onDone?: (type: Request['method']) => void
@@ -69,6 +70,8 @@ type Eru = (path: string, options?: EruConfig) => {
   post<T>(options: RequestConfig<T>): Promise<T>
   put<T>(id: string | number, options: RequestConfig<T>): Promise<T>
   patch<T>(id: string | number, options: RequestConfig<T>): Promise<T>
+  // Cancel all running requests
+  cancel(): void
 }
 ```
 

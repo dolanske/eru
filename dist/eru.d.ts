@@ -16,7 +16,7 @@ interface RequestConfig {
 }
 interface EruInstance {
     get: <T>(id?: string | number | Omit<RequestConfig, 'body'>, options?: RequestConfig) => Promise<T>;
-    post: <T>(options: RequestConfig) => Promise<T>;
+    post: <T>(id: string | number | RequestConfig, options?: RequestConfig) => Promise<T>;
     put: <T>(id: string | number, options: RequestConfig) => Promise<T>;
     patch: <T>(id: string | number, options: RequestConfig) => Promise<T>;
     delete: <T>(id: number, options?: Omit<RequestConfig, 'body'>) => Promise<T>;

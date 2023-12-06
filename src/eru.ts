@@ -138,7 +138,7 @@ function _patchBodyless<T>(method: 'GET' | 'DELETE' | 'POST', path: string, id: 
 
 interface EruInstance {
   get: <T>(id?: string | number | Omit<RequestConfig, 'body'>, options?: RequestConfig) => Promise<T>
-  post: <T>(options: RequestConfig) => Promise<T>
+  post: <T>(id: string | number | RequestConfig, options?: RequestConfig) => Promise<T>
   put: <T>(id: string | number, options: RequestConfig) => Promise<T>
   patch: <T>(id: string | number, options: RequestConfig) => Promise<T>
   delete: <T>(id: number, options?: Omit<RequestConfig, 'body'>) => Promise<T>
@@ -167,7 +167,15 @@ export function eru(path: string, options?: EruConfig): EruInstance {
       const parsedOptions = (typeof id === 'number' || typeof id === 'string') ? options : id
       return _patchBodyless<T>('GET', path, patchedId, parsedOptions, instanceOptions)
     },
-    post: <T>(options: RequestConfig) => _patchBody<T>('POST', path, '', options, instanceOptions),
+    post: <T>(id: string | number | RequestConfig, options?: RequestConfig) => {
+      // If no options were provided, we can assume that
+      if (typeof id !== 'number' && typeof id !== 'string') {
+        options = id
+        id = ''
+      }
+
+      return _patchBody<T>('POST', path, id, options, instanceOptions)
+    },
     put: <T>(id: string | number, options: RequestConfig) => _patchBody<T>('PUT', path, id, options, instanceOptions),
     patch: <T>(id: string | number, options: RequestConfig) => _patchBody<T>('PATCH', path, id, options, instanceOptions),
     delete: <T>(id: number, options?: Omit<RequestConfig, 'body'>) => _patchBodyless<T>('DELETE', path, id, options, instanceOptions),

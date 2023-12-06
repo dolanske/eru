@@ -1,7 +1,7 @@
-function g(t) {
-  if (!t)
+function d(c) {
+  if (!c)
     return "";
-  const e = Object.keys(t).map((n) => [n, t[n]].map(encodeURIComponent).join("=")).join("&");
+  const e = Object.keys(c).map((a) => [a, c[a]].map(encodeURIComponent).join("=")).join("&");
   return e ? `?${e}` : "";
 }
 const u = {
@@ -13,65 +13,65 @@ const u = {
     // 'Content-Type': 'application/json',
   }
 };
-function O(t) {
-  Object.assign(u, t);
+function O(c) {
+  Object.assign(u, c);
 }
-async function m(t, e) {
-  return u.authTokenKey && (e.headers.Authorization = `Bearer ${localStorage.getItem(u == null ? void 0 : u.authTokenKey)}`), e.onLoading && e.onLoading(!0, e.method), e.body && (e.body = JSON.stringify(e.body)), new Promise((n, a) => {
-    fetch(e.rootPath + t, e).then((r) => {
-      r.text().then((c) => {
+async function m(c, e) {
+  return u.authTokenKey && (e.headers.Authorization = `Bearer ${localStorage.getItem(u == null ? void 0 : u.authTokenKey)}`), e.onLoading && e.onLoading(!0, e.method), e.body && (e.body = JSON.stringify(e.body)), new Promise((a, t) => {
+    fetch(e.rootPath + c, e).then((r) => {
+      r.text().then((n) => {
         if (!r.ok) {
           let l = null;
           try {
-            l = JSON.parse(c).message;
+            l = JSON.parse(n).message;
           } catch {
-            l = c;
+            l = n;
           }
-          const y = new Error(l || `[${r.status}] ${r.statusText}`);
-          e != null && e.onError && e.onError(y, e.method), u.rejectReturn ? n(u.rejectReturn) : a(y);
+          const h = new Error(l || `[${r.status}] ${r.statusText}`);
+          e != null && e.onError && e.onError(h, e.method), u.rejectReturn ? a(u.rejectReturn) : t(h);
         }
         let f;
         try {
-          f = JSON.parse(c);
+          f = JSON.parse(n);
         } catch {
-          f = c;
+          f = n;
         }
-        n(f);
+        a(f);
       });
     }).catch((r) => {
-      e != null && e.onError && e.onError(r, e.method), u.rejectReturn ? n(u.rejectReturn) : a(r);
+      e != null && e.onError && e.onError(r, e.method), u.rejectReturn ? a(u.rejectReturn) : t(r);
     }).finally(() => {
       e.onLoading && e.onLoading(!1, e.method), e.onDone && e.onDone(e.method);
     });
   });
 }
-function d(t, e, n, a, r) {
-  const c = Object.assign(u, r, {
-    method: t,
-    body: JSON.stringify((a == null ? void 0 : a.body) ?? {})
-  }, a);
-  return m(`${e}/${n}${g(a == null ? void 0 : a.query)}`, c);
+function y(c, e, a, t, r) {
+  const n = Object.assign(u, r, {
+    method: c,
+    body: JSON.stringify((t == null ? void 0 : t.body) ?? {})
+  }, t);
+  return m(`${e}/${a}${d(t == null ? void 0 : t.query)}`, n);
 }
-function h(t, e, n, a, r) {
-  const c = Object.assign(u, r, {
-    method: t
-  }, a);
-  return m(e + n + g(a == null ? void 0 : a.query), c);
+function g(c, e, a, t, r) {
+  const n = Object.assign(u, r, {
+    method: c
+  }, t);
+  return m(e + a + d(t == null ? void 0 : t.query), n);
 }
-function s(t, e) {
-  const n = e ?? {};
-  let a = new AbortController();
-  return n.signal = a.signal, {
-    get: (r, c) => {
+function s(c, e) {
+  const a = e ?? {};
+  let t = new AbortController();
+  return a.signal = t.signal, {
+    get: (r, n) => {
       const f = typeof r == "number" || typeof r == "string" ? `/${r}` : "";
-      return h("GET", t, f, typeof r == "number" || typeof r == "string" ? c : r, n);
+      return g("GET", c, f, typeof r == "number" || typeof r == "string" ? n : r, a);
     },
-    post: (r) => d("POST", t, "", r, n),
-    put: (r, c) => d("PUT", t, r, c, n),
-    patch: (r, c) => d("PATCH", t, r, c, n),
-    delete: (r, c) => h("DELETE", t, r, c, n),
+    post: (r, n) => (typeof r != "number" && typeof r != "string" && (n = r, r = ""), y("POST", c, r, n, a)),
+    put: (r, n) => y("PUT", c, r, n, a),
+    patch: (r, n) => y("PATCH", c, r, n, a),
+    delete: (r, n) => g("DELETE", c, r, n, a),
     cancel: () => {
-      a.abort(), a = new AbortController(), n.signal = a.signal;
+      t.abort(), t = new AbortController(), a.signal = t.signal;
     }
   };
 }

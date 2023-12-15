@@ -76,7 +76,7 @@ class m {
         const f = typeof r == "number" || typeof r == "string" ? `/${r}` : "", s = typeof r == "number" || typeof r == "string" ? n : r;
         return this.patchBodyless("GET", t, f, s, c);
       },
-      post: (r, n) => (b(r) && (n = String(r), r = ""), this.patchBody("POST", t, String(r), { body: n }, c)),
+      post: (r, n) => (b(r) && (n = r, r = ""), this.patchBody("POST", t, String(r), { body: n }, c)),
       put: (r, n) => this.patchBody("PUT", t, r, n, c),
       patch: (r, n) => this.patchBody("PATCH", t, r, n, c),
       delete: (r, n) => this.patchBodyless("DELETE", t, r, n, c),

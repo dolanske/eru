@@ -119,7 +119,7 @@ export class Eru {
       },
       post: <T>(id: string | number | object, body?: string | object) => {
         if (isObject(id)) {
-          body = String(id)
+          body = id as object
           id = ''
         }
         return this.patchBody<T>('POST', path, String(id), { body }, instanceOptions)

@@ -24,7 +24,6 @@ export interface SerializedEruOptions extends EruConfig {
 
 export interface EruRoute {
   get: <T>(id?: string | number | Omit<RequestConfig, 'body'>, options?: RequestConfig) => Promise<T>
-  post: <T>(id: object) => Promise<T>
   post: <T>(id: string | number | object, body?: string | object) => Promise<T>
   put: <T>(id: string | number, options: RequestConfig) => Promise<T>
   patch: <T>(id: string | number, options: RequestConfig) => Promise<T>

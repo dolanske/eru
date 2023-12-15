@@ -126,14 +126,14 @@ function _patchBody<T>(method: 'PUT' | 'PATCH' | 'POST', path: string, id: strin
     body: JSON.stringify(options?.body ?? {}),
   }, options)
 
-  return handle<T>(`${path}/${id}${stringifyQuery(options?.query)}`, patchOptions)
+  return handle<T>(`${path}${id ? `/${id}` : ''}${stringifyQuery(options?.query)}`, patchOptions)
 }
 
 function _patchBodyless<T>(method: 'GET' | 'DELETE' | 'POST', path: string, id: string | number, options: any, instanceOptions: any) {
   const GET_CONFIG: SerializedEruOptions = Object.assign(cfg, instanceOptions, {
     method,
   }, options)
-  return handle<T>(path + id + stringifyQuery(options?.query), GET_CONFIG)
+  return handle<T>(`${path}${id ? `/${id}` : ''}${stringifyQuery(options?.query)}`, GET_CONFIG)
 }
 
 interface EruInstance {

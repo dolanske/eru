@@ -3,7 +3,15 @@ export function stringifyQuery(query: any): string {
     return ''
 
   const searchParams = Object.keys(query)
-    .map(k => [k, query[k]].map(encodeURIComponent).join('='))
+    .map(key => {
+      // Here we simply add a check for array of values
+      let stringified = query[key]
+      if (Array.isArray(query[key])) {
+        stringified = query[key].join(',')
+      }
+
+      return [key, stringified].map(encodeURIComponent).join('=')
+    })
     .join('&')
   return searchParams ? `?${searchParams}` : ''
 }

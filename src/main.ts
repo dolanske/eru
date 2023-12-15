@@ -1,6 +1,6 @@
 // Test during implementation here
 
-import { eru } from './eru'
+// import { eru } from './eru'
 
 // const baseApi = eru('https://hub.dummyapis.com/delay')
 // const testApi = baseApi.route('/test')

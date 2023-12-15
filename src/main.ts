@@ -1,26 +1,23 @@
 // Test during implementation here
 
-import { eru, setupEru } from './eru'
+import { eru } from './eru'
 
-setupEru({
-  rootPath: 'https://hub.dummyapis.com/delay',
-})
+// const baseApi = eru('https://hub.dummyapis.com/delay')
+// const testApi = baseApi.route('/test')
+// const start = performance.now()
 
-const Api = eru('/test')
-const start = performance.now()
-
-Api.get({
-  query: {
-    seconds: 3,
-  },
-})
-  .then(() => {
-    console.log(performance.now() - start)
-  })
-  .catch(() => {
-    console.log(performance.now() - start)
-  })
+// testApi.get({
+//   query: {
+//     seconds: 3,
+//   },
+// })
+//   .then(() => {
+//     console.log(performance.now() - start)
+//   })
+//   .catch(() => {
+//     console.log(performance.now() - start)
+//   })
 
 // setTimeout(() => {
-//   Api.cancel()
+//   testApi.cancel()
 // }, 1500)

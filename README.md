@@ -6,26 +6,56 @@ Super simple wrapper around the [Fetch API](https://developer.mozilla.org/en-US/
 
 ## Usage
 
+First create an API router by providing it with the base API path and options.
+
 ```ts
 import { eru } from './eru'
+import { apiToken } from "./config"
 
-interface Person {
-  id: number
-  name: string
-}
-
-// Setup, create an eru instance
-const router = eru('https://swapi.dev/api')
-// Create an API route
-const people = router.route('/people')
-
-// Each route exposes the RouteInstance
-const getPeople = people.get<Person[]>() // Promise<Person[]>
-const getPerson = (id) => people.get<Person>(id) // Promise<Person>
-const createPerson = (newPerson: Person) => people.post(newPerson, {
+const router = eru('api.myproject.dev', {
   headers: {
-    'Content-type': 'application/json'
+    Authorization: `Bearer ${apiToken}`
   }
 })
-const removePerson = (id) => people.delete(id)
+```
+
+Now you can create as many routes as you wish, using the `route` function.
+
+```ts
+const people = router.route('/people')
+const tags = router.route('/people/tags')
+```
+
+Each route exposes standard request methods and a cancel method, which would stop all pending calls within the route.
+```ts
+people.get()
+people.post()
+people.put()
+people.patch()
+people.delete()
+people.cancel()
+```
+
+## Examples
+
+Create an API route for `/people`. Each request method is wrapped in an arrow function so you can provide types for parameters.
+
+```ts
+interface Person { id: number name: string }
+const people = eru('https://swapi.dev/api').route('/people')
+
+// returns Promise<Person[]>
+const getPeople = () => people.get<Person[]>()
+
+// Adding an ID to the .get() call will append a `/${id}` to the route path
+// returns Promise<Person>
+const getPerson = (id: number) => people.get<Person>(id) 
+
+const createPerson = (newPerson: Person) => people.post(newPerson, {
+  headers: { 'Content-type': 'application/json' }
+})
+  .then(() => // handle successful submit)
+  .catch((e) => // handle errors)
+
+const removePerson = (id: number) => people.delete(id)
 ```

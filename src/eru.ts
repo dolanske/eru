@@ -26,11 +26,11 @@ export class Eru {
     return this.runRequest<T>(`${path}${id ? `/${id}` : ''}${stringifyQuery(options?.query)}`, patchOptions)
   }
 
-  private patchBodyless<T>(method: 'GET' | 'DELETE' | 'POST', path: string, id: string | number, options: any, instanceOptions: any) {
-    const GET_CONFIG: SerializedEruOptions = Object.assign(this.cfg, instanceOptions, {
+  private patchBodyless<T>(method: 'GET' | 'DELETE', path: string, id: string | number, options: any, instanceOptions: any) {
+    const patchOptions: SerializedEruOptions = Object.assign(this.cfg, instanceOptions, {
       method,
     }, options)
-    return this.runRequest<T>(`${path}${id ? `/${id}` : ''}${stringifyQuery(options?.query)}`, GET_CONFIG)
+    return this.runRequest<T>(`${path}${id ? `/${id}` : ''}${stringifyQuery(options?.query)}`, patchOptions)
   }
 
   private runRequest<T>(path: string, options: SerializedEruOptions): Promise<T> {
@@ -117,6 +117,7 @@ export class Eru {
         const parsedOptions = (typeof id === 'number' || typeof id === 'string') ? options : id
         return this.patchBodyless<T>('GET', path, patchedId, parsedOptions, instanceOptions)
       },
+      delete: <T>(id: number, options?: Omit<RequestConfig, 'body'>) => this.patchBodyless<T>('DELETE', path, id, options, instanceOptions),
       post: <T>(id: string | number | object, body?: string | object) => {
         if (isObject(id)) {
           body = id as object
@@ -124,9 +125,20 @@ export class Eru {
         }
         return this.patchBody<T>('POST', path, String(id), { body }, instanceOptions)
       },
-      put: <T>(id: string | number, options: RequestConfig) => this.patchBody<T>('PUT', path, id, options, instanceOptions),
-      patch: <T>(id: string | number, options: RequestConfig) => this.patchBody<T>('PATCH', path, id, options, instanceOptions),
-      delete: <T>(id: number, options?: Omit<RequestConfig, 'body'>) => this.patchBodyless<T>('DELETE', path, id, options, instanceOptions),
+      put: <T>(id: string | number | object, body?: string | object) => {
+        if (isObject(id)) {
+          body = id as object
+          id = ''
+        }
+        return this.patchBody<T>('PUT', path, String(id), { body }, instanceOptions)
+      },
+      patch: <T>(id: string | number | object, body?: string | object) => {
+        if (isObject(id)) {
+          body = id as object
+          id = ''
+        }
+        return this.patchBody<T>('PATCH', path, String(id), options, instanceOptions)
+      },
       cancel: () => {
         // Abort all requests and assign a new abort controller instance
         controller.abort()

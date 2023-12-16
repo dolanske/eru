@@ -137,7 +137,7 @@ export class Eru {
           body = id as object
           id = ''
         }
-        return this.patchBody<T>('PATCH', path, String(id), options, instanceOptions)
+        return this.patchBody<T>('PATCH', path, String(id), { body }, instanceOptions)
       },
       cancel: () => {
         // Abort all requests and assign a new abort controller instance

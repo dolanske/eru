@@ -73,7 +73,7 @@ class d {
     let a = new AbortController();
     return n.signal = a.signal, {
       get: (r, c) => {
-        const s = typeof r == "number" || typeof r == "string" ? `/${r}` : "", f = typeof r == "number" || typeof r == "string" ? c : r;
+        const s = typeof r == "number" || typeof r == "string" ? String(r) : "", f = typeof r == "number" || typeof r == "string" ? c : r;
         return this.patchBodyless("GET", t, s, f, n);
       },
       delete: (r, c) => this.patchBodyless("DELETE", t, r, c, n),

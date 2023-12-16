@@ -113,7 +113,7 @@ export class Eru {
 
     return {
       get: <T>(id?: string | number | Omit<RequestConfig, 'body'>, options?: RequestConfig) => {
-        const patchedId = (typeof id === 'number' || typeof id === 'string') ? `/${id}` : ''
+        const patchedId = (typeof id === 'number' || typeof id === 'string') ? String(id) : ''
         const parsedOptions = (typeof id === 'number' || typeof id === 'string') ? options : id
         return this.patchBodyless<T>('GET', path, patchedId, parsedOptions, instanceOptions)
       },

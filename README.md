@@ -1,6 +1,6 @@
 # eru 得る
 
-Japanese for `get` (that's what google translate told be at least)
+Japanese for `get` (that's what google translate told me at least)
 
 Super simple wrapper around the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API). Create a simple API router, with full type safety.
 

@@ -21,7 +21,7 @@ declare interface EruListeners {
     onDone?: (type: Request['method']) => void;
 }
 
-declare interface EruRoute {
+export declare interface EruRoute {
     get: <T>(id?: string | number | Omit<RequestConfig, 'body'>, options?: RequestConfig) => Promise<T>;
     post: <T>(id: string | number | object, body?: string | object) => Promise<T>;
     put: <T>(id: string | number, options: RequestConfig) => Promise<T>;

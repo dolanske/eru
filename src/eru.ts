@@ -152,3 +152,7 @@ export class Eru {
 export function eru(path: string, options?: EruConfig) {
   return new Eru(path, options)
 }
+
+export {
+  type EruRoute,
+}

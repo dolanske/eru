@@ -30,6 +30,8 @@ export class Eru {
     const patchOptions: SerializedEruOptions = Object.assign(this.cfg, instanceOptions, {
       method,
     }, options)
+    // In case idiots pass a body
+    delete patchOptions.body
     return this.runRequest<T>(`${path}${id ? `/${id}` : ''}${stringifyQuery(options?.query)}`, patchOptions)
   }
 

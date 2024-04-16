@@ -1,6 +1,6 @@
 var b = Object.defineProperty;
-var m = (h, t, e) => t in h ? b(h, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : h[t] = e;
-var u = (h, t, e) => (m(h, typeof t != "symbol" ? t + "" : t, e), e);
+var d = (h, t, e) => t in h ? b(h, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : h[t] = e;
+var u = (h, t, e) => (d(h, typeof t != "symbol" ? t + "" : t, e), e);
 function y(h) {
   if (!h)
     return "";
@@ -13,7 +13,7 @@ function y(h) {
 function g(h) {
   return typeof h == "function" || typeof h == "object" && !!h;
 }
-class d {
+class m {
   constructor(t, e = {}) {
     u(this, "cfg");
     u(this, "basePath");
@@ -37,7 +37,7 @@ class d {
     const c = Object.assign(this.cfg, r, {
       method: t
     }, a);
-    return this.runRequest(`${e}${n ? `/${n}` : ""}${y(a == null ? void 0 : a.query)}`, c);
+    return delete c.body, this.runRequest(`${e}${n ? `/${n}` : ""}${y(a == null ? void 0 : a.query)}`, c);
   }
   runRequest(t, e) {
     return this.cfg.authTokenKey && (e.headers.Authorization = `Bearer ${localStorage.getItem(this.cfg.authTokenKey)}`), e.onLoading && e.onLoading(!0, e.method), e.body && (e.body = JSON.stringify(e.body)), new Promise((n, a) => {
@@ -87,9 +87,9 @@ class d {
   }
 }
 function j(h, t) {
-  return new d(h, t);
+  return new m(h, t);
 }
 export {
-  d as Eru,
+  m as Eru,
   j as eru
 };

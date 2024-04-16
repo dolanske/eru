@@ -14,7 +14,7 @@ function g(h) {
   return typeof h == "function" || typeof h == "object" && !!h;
 }
 class d {
-  constructor(t, e) {
+  constructor(t, e = {}) {
     u(this, "cfg");
     u(this, "basePath");
     this.cfg = Object.assign({
@@ -40,26 +40,26 @@ class d {
     return this.runRequest(`${e}${n ? `/${n}` : ""}${y(a == null ? void 0 : a.query)}`, c);
   }
   runRequest(t, e) {
-    return this.cfg.authTokenKey && (e.headers.Authorization = `Bearer ${localStorage.getItem(cfg == null ? void 0 : cfg.authTokenKey)}`), e.onLoading && e.onLoading(!0, e.method), e.body && (e.body = JSON.stringify(e.body)), new Promise((n, a) => {
+    return this.cfg.authTokenKey && (e.headers.Authorization = `Bearer ${localStorage.getItem(this.cfg.authTokenKey)}`), e.onLoading && e.onLoading(!0, e.method), e.body && (e.body = JSON.stringify(e.body)), new Promise((n, a) => {
       fetch(this.basePath + t, e).then((r) => {
         r.text().then((c) => {
           if (!r.ok) {
-            let f = null;
+            let s = null;
             try {
-              f = JSON.parse(c).message;
+              s = JSON.parse(c).message;
             } catch {
-              f = c;
+              s = c;
             }
-            const l = new Error(f || `[${r.status}] ${r.statusText}`);
+            const l = new Error(s || `[${r.status}] ${r.statusText}`);
             e != null && e.onError && e.onError(l, e.method), this.cfg.rejectReturn ? n(this.cfg.rejectReturn) : a(l);
           }
-          let s;
+          let f;
           try {
-            s = JSON.parse(c);
+            f = JSON.parse(c);
           } catch {
-            s = c;
+            f = c;
           }
-          n(s);
+          n(f);
         });
       }).catch((r) => {
         e != null && e.onError && e.onError(r, e.method), this.cfg.rejectReturn ? n(this.cfg.rejectReturn) : a(r);
@@ -73,8 +73,8 @@ class d {
     let a = new AbortController();
     return n.signal = a.signal, {
       get: (r, c) => {
-        const s = typeof r == "number" || typeof r == "string" ? String(r) : "", f = typeof r == "number" || typeof r == "string" ? c : r;
-        return this.patchBodyless("GET", t, s, f, n);
+        const f = typeof r == "number" || typeof r == "string" ? String(r) : "", s = typeof r == "number" || typeof r == "string" ? c : r;
+        return this.patchBodyless("GET", t, f, s, n);
       },
       delete: (r, c) => this.patchBodyless("DELETE", t, r, c, n),
       post: (r, c) => (g(r) && (c = r, r = ""), this.patchBody("POST", t, String(r), { body: c }, n)),

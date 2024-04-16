@@ -27,7 +27,7 @@ export declare interface EruRoute {
     put: <T>(id: string | number, options: RequestConfig) => Promise<T>;
     patch: <T>(id: string | number, options: RequestConfig) => Promise<T>;
     delete: <T>(id: number, options?: Omit<RequestConfig, 'body'>) => Promise<T>;
-    cancel(): void;
+    cancel: () => void;
 }
 
 declare interface RequestConfig {

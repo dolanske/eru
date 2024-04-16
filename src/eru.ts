@@ -1,11 +1,11 @@
-import { EruConfig, EruRoute, RequestConfig, SerializedEruOptions } from "./types"
-import { stringifyQuery, isObject } from "./util"
+import type { EruConfig, EruRoute, RequestConfig, SerializedEruOptions } from './types'
+import { isObject, stringifyQuery } from './util'
 
 export class Eru {
   cfg: EruConfig
   basePath: string
 
-  constructor(path: string, options?: EruConfig) {
+  constructor(path: string, options: EruConfig = {}) {
     this.cfg = Object.assign({
       mode: 'cors',
       authTokenKey: undefined,
@@ -36,7 +36,7 @@ export class Eru {
   private runRequest<T>(path: string, options: SerializedEruOptions): Promise<T> {
     if (this.cfg.authTokenKey)
       // @ts-expect-error options.headers are defined in the `cfg` defaults, which indeed are merged together in the patch functions
-      options.headers.Authorization = `Bearer ${localStorage.getItem(cfg?.authTokenKey)}`
+      options.headers.Authorization = `Bearer ${localStorage.getItem(this.cfg.authTokenKey)}`
 
     if (options.onLoading)
       options.onLoading(true, options.method)

@@ -1,7 +1,7 @@
 {
   "name": "@dolanske/eru",
   "type": "module",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "private": true,
   "description": "Simple & opinionated wrapper around the Fetch API",
   "author": "dolanske",
@@ -34,10 +34,10 @@
     "test": "vitest"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.39.1",
-    "eslint": "^8.41.0",
-    "typescript": "^5.0.2",
-    "vite": "^4.3.2",
-    "vite-plugin-dts": "^2.3.0"
+    "@antfu/eslint-config": "^2.13.3",
+    "eslint": "^9.0.0",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.8",
+    "vite-plugin-dts": "^3.8.2"
   }
 }

@@ -30,5 +30,5 @@ export interface EruRoute {
   delete: <T>(id: number, options?: Omit<RequestConfig, 'body'>) => Promise<T>
 
   // Cancel all running requests for this Eru instance
-  cancel(): void
+  cancel: () => void
 }

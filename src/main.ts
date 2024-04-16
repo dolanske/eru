@@ -1,5 +1,7 @@
 // Test during implementation here
 
+import { eru } from './eru'
+
 // import { eru } from './eru'
 
 // const baseApi = eru('https://hub.dummyapis.com/delay')
@@ -21,3 +23,9 @@
 // setTimeout(() => {
 //   testApi.cancel()
 // }, 1500)
+
+const api = eru('https://swapi.dev/api/', {
+  authTokenKey: 'idk',
+}).route('/people')
+
+api.get(1)

@@ -54,8 +54,8 @@ const getPerson = (id: number) => people.get<Person>(id)
 const createPerson = (newPerson: Person) => people.post(newPerson, {
   headers: { 'Content-type': 'application/json' }
 })
-  .then(() => // handle successful submit)
-  .catch((e) => // handle errors)
+  .then((data) => {})
+  .catch((err) => {})
 
 const removePerson = (id: number) => people.delete(id)
 ```

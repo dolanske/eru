@@ -24,8 +24,6 @@ import { eru } from './eru'
 //   testApi.cancel()
 // }, 1500)
 
-const api = eru('https://swapi.dev/api/', {
-  authTokenKey: 'idk',
-}).route('/people')
+const api = eru('https://swapi.dev/api/', { authTokenKey: 'idk' }).route('/people')
 
 api.get(1)

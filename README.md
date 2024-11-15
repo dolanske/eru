@@ -4,6 +4,10 @@ Japanese for `get` (that's what google translate told me at least)
 
 Super simple wrapper around the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API). Create a simple API router, with full type safety.
 
+```bash
+npm i @dolanske/eru
+```
+
 ## Usage
 
 First create an API router by providing it with the base API path and options.

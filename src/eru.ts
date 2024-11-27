@@ -1,6 +1,7 @@
 import type { EruConfig, EruRoute, RequestConfig, SerializedEruOptions } from './types'
 import { isObject, stringifyQuery } from './util'
 
+
 export class Eru {
   cfg: EruConfig
   basePath: string

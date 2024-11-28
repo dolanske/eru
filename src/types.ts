@@ -15,7 +15,7 @@ export interface EruConfig extends RequestInit, EruListeners {
 export interface RequestConfig {
   query?: string | Record<string, string | number>
   body: any
-  cacheTimeout: number
+  // cacheTimeout: number
 }
 
 // This is the final options object used within the handle function
@@ -32,5 +32,5 @@ export interface EruRoute {
 
   // Cancel all running requests for this Eru instance
   cancel: () => void
-  flushCache: () => void
+  // flushCache: () => void
 }

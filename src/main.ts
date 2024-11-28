@@ -1,5 +1,6 @@
 // Test during implementation here
 
+import { returnProxy } from './2eru'
 import { eru } from './eru'
 
 // import { eru } from './eru'
@@ -24,6 +25,13 @@ import { eru } from './eru'
 //   testApi.cancel()
 // }, 1500)
 
-const api = eru('https://swapi.dev/api/', { authTokenKey: 'idk' }).route('/people')
+// const api = eru('https://swapi.dev/api/', { authTokenKey: 'idk' }).route('/people')
 
-api.get(1)
+// api.get(1)
+
+// Testing
+const res = await returnProxy()
+
+// setInterval(() => {
+//   console.log(stuff.value)
+// }, 100)

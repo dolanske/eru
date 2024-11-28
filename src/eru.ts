@@ -1,7 +1,6 @@
 import type { EruConfig, EruRoute, RequestConfig, SerializedEruOptions } from './types'
 import { isObject, stringifyQuery } from './util'
 
-
 export class Eru {
   cfg: EruConfig
   basePath: string
@@ -114,8 +113,6 @@ export class Eru {
     let controller = new AbortController()
     instanceOptions.signal = controller.signal
 
-    let cache = {}
-
     return {
       get: <T>(id?: string | number | Omit<RequestConfig, 'body'>, options?: RequestConfig) => {
         const patchedId = (typeof id === 'number' || typeof id === 'string') ? String(id) : ''
@@ -149,9 +146,6 @@ export class Eru {
         controller.abort()
         controller = new AbortController()
         instanceOptions.signal = controller.signal
-      },
-      flushCache: () => {
-        cache = {}
       },
     }
   }

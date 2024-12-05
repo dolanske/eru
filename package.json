@@ -33,14 +33,15 @@
     "preview": "vite preview",
     "test": "vitest"
   },
+  "dependencies": {
+    "@dolanske/eminem": "^1.0.0"
+  },
   "devDependencies": {
     "@antfu/eslint-config": "^2.13.3",
     "eslint": "^9.0.0",
     "typescript": "^5.4.5",
     "vite": "^5.2.8",
-    "vite-plugin-dts": "^3.8.2"
-  },
-  "dependencies": {
-    "@dolanske/eminem": "^1.0.0"
+    "vite-plugin-dts": "^3.8.2",
+    "vitest": "^2.1.8"
   }
 }

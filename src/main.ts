@@ -30,7 +30,7 @@ import { eru } from './eru'
 // api.get(1)
 
 // Testing
-const res = await returnProxy()
+// const res = await returnProxy()
 
 // setInterval(() => {
 //   console.log(stuff.value)

@@ -3,12 +3,11 @@ export function stringifyQuery(query: any): string {
     return ''
 
   const searchParams = Object.keys(query)
-    .map(key => {
+    .map((key) => {
       // Here we simply add a check for array of values
       let stringified = query[key]
-      if (Array.isArray(query[key])) {
+      if (Array.isArray(query[key]))
         stringified = query[key].join(',')
-      }
 
       return [key, stringified].map(encodeURIComponent).join('=')
     })
@@ -17,5 +16,5 @@ export function stringifyQuery(query: any): string {
 }
 
 export function isObject(val: any) {
-  return typeof val === 'function' || typeof val === 'object' && !!val
+  return typeof val === 'function' || (typeof val === 'object' && !!val)
 }

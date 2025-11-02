@@ -1,57 +1,59 @@
-var b = Object.defineProperty;
-var d = (h, t, e) => t in h ? b(h, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : h[t] = e;
-var u = (h, t, e) => (d(h, typeof t != "symbol" ? t + "" : t, e), e);
-function y(h) {
-  if (!h)
+var d = Object.defineProperty;
+var b = (s, r, e) => r in s ? d(s, r, { enumerable: !0, configurable: !0, writable: !0, value: e }) : s[r] = e;
+var h = (s, r, e) => (b(s, typeof r != "symbol" ? r + "" : r, e), e);
+function l(s) {
+  if (!s)
     return "";
-  const t = Object.keys(h).map((e) => {
-    let n = h[e];
-    return Array.isArray(h[e]) && (n = h[e].join(",")), [e, n].map(encodeURIComponent).join("=");
+  const r = Object.keys(s).map((e) => {
+    let a = s[e];
+    return Array.isArray(s[e]) && (a = s[e].join(",")), [e, a].map(encodeURIComponent).join("=");
   }).join("&");
-  return t ? `?${t}` : "";
+  return r ? `?${r}` : "";
 }
-function g(h) {
-  return typeof h == "function" || typeof h == "object" && !!h;
+function g(s) {
+  return typeof s == "function" || typeof s == "object" && !!s;
 }
 class m {
-  constructor(t, e = {}) {
-    u(this, "cfg");
-    u(this, "basePath");
+  constructor(r, e = {}) {
+    h(this, "cfg");
+    h(this, "basePath");
     this.cfg = Object.assign({
       mode: "cors",
       authTokenKey: void 0,
       headers: {
         Accept: "application/json"
       }
-    }, e), this.basePath = t;
+    }, e), this.basePath = r;
   }
   // Helper method for seting up PUT, PATCH and POST requests as their functionality is exactly the same
-  patchBody(t, e, n, a, r) {
-    const c = Object.assign(this.cfg, r, {
-      method: t,
-      body: JSON.stringify((a == null ? void 0 : a.body) ?? {})
-    }, a);
-    return this.runRequest(`${e}${n ? `/${n}` : ""}${y(a == null ? void 0 : a.query)}`, c);
+  patchBody(r, e, a, n, t) {
+    const c = Object.assign(this.cfg, t, {
+      method: r,
+      body: JSON.stringify((n == null ? void 0 : n.body) ?? {})
+    }, n);
+    return this.runRequest(`${e}${a ? `/${a}` : ""}${l(n == null ? void 0 : n.query)}`, c);
   }
-  patchBodyless(t, e, n, a, r) {
-    const c = Object.assign(this.cfg, r, {
-      method: t
-    }, a);
-    return delete c.body, this.runRequest(`${e}${n ? `/${n}` : ""}${y(a == null ? void 0 : a.query)}`, c);
+  patchBodyless(r, e, a, n, t) {
+    const c = Object.assign(this.cfg, t, {
+      method: r
+    }, n);
+    delete c.body;
+    const f = String(a), u = f ? f.startsWith("/") ? f.slice(1) : f : "";
+    return this.runRequest(`${e}${u}${l(n == null ? void 0 : n.query)}`, c);
   }
-  runRequest(t, e) {
-    return this.cfg.authTokenKey && (e.headers.Authorization = `Bearer ${localStorage.getItem(this.cfg.authTokenKey)}`), e.onLoading && e.onLoading(!0, e.method), e.body && (e.body = JSON.stringify(e.body)), new Promise((n, a) => {
-      fetch(this.basePath + t, e).then((r) => {
-        r.text().then((c) => {
-          if (!r.ok) {
-            let s = null;
+  runRequest(r, e) {
+    return this.cfg.authTokenKey && (e.headers.Authorization = `Bearer ${localStorage.getItem(this.cfg.authTokenKey)}`), e.onLoading && e.onLoading(!0, e.method), e.body && (e.body = JSON.stringify(e.body)), new Promise((a, n) => {
+      fetch(this.basePath + r, e).then((t) => {
+        t.text().then((c) => {
+          if (!t.ok) {
+            let u = null;
             try {
-              s = JSON.parse(c).message;
+              u = JSON.parse(c).message;
             } catch {
-              s = c;
+              u = c;
             }
-            const l = new Error(s || `[${r.status}] ${r.statusText}`);
-            e != null && e.onError && e.onError(l, e.method), this.cfg.rejectReturn ? n(this.cfg.rejectReturn) : a(l);
+            const i = new Error(u || `[${t.status}] ${t.statusText}`);
+            e != null && e.onError && e.onError(i, e.method), this.cfg.rejectReturn ? a(this.cfg.rejectReturn) : n(i);
           }
           let f;
           try {
@@ -59,37 +61,37 @@ class m {
           } catch {
             f = c;
           }
-          n(f);
+          a(f);
         });
-      }).catch((r) => {
-        e != null && e.onError && e.onError(r, e.method), this.cfg.rejectReturn ? n(this.cfg.rejectReturn) : a(r);
+      }).catch((t) => {
+        e != null && e.onError && e.onError(t, e.method), this.cfg.rejectReturn ? a(this.cfg.rejectReturn) : n(t);
       }).finally(() => {
         e.onLoading && e.onLoading(!1, e.method), e.onDone && e.onDone(e.method);
       });
     });
   }
-  route(t, e) {
-    const n = e ?? {};
-    let a = new AbortController();
-    return n.signal = a.signal, {
-      get: (r, c) => {
-        const f = typeof r == "number" || typeof r == "string" ? String(r) : "", s = typeof r == "number" || typeof r == "string" ? c : r;
-        return this.patchBodyless("GET", t, f, s, n);
+  route(r, e) {
+    const a = e ?? {};
+    let n = new AbortController();
+    return a.signal = n.signal, {
+      get: (t, c) => {
+        const f = typeof t == "number" || typeof t == "string" ? String(t) : "", u = typeof t == "number" || typeof t == "string" ? c : t;
+        return this.patchBodyless("GET", r, f, u, a);
       },
-      delete: (r, c) => this.patchBodyless("DELETE", t, r, c, n),
-      post: (r, c) => (g(r) && (c = r, r = ""), this.patchBody("POST", t, String(r), { body: c }, n)),
-      put: (r, c) => (g(r) && (c = r, r = ""), this.patchBody("PUT", t, String(r), { body: c }, n)),
-      patch: (r, c) => (g(r) && (c = r, r = ""), this.patchBody("PATCH", t, String(r), { body: c }, n)),
+      delete: (t, c) => this.patchBodyless("DELETE", r, t, c, a),
+      post: (t, c) => (g(t) && (c = t, t = ""), this.patchBody("POST", r, String(t), { body: c }, a)),
+      put: (t, c) => (g(t) && (c = t, t = ""), this.patchBody("PUT", r, String(t), { body: c }, a)),
+      patch: (t, c) => (g(t) && (c = t, t = ""), this.patchBody("PATCH", r, String(t), { body: c }, a)),
       cancel: () => {
-        a.abort(), a = new AbortController(), n.signal = a.signal;
+        n.abort(), n = new AbortController(), a.signal = n.signal;
       }
     };
   }
 }
-function j(h, t) {
-  return new m(h, t);
+function S(s, r) {
+  return new m(s, r);
 }
 export {
   m as Eru,
-  j as eru
+  S as eru
 };

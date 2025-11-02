@@ -1,7 +1,7 @@
 {
   "name": "@dolanske/eru",
   "type": "module",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "Simple & opinionated wrapper around the Fetch API",
   "author": "dolanske",
   "license": "GPL-3.0",

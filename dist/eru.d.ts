@@ -22,18 +22,12 @@ declare interface EruListeners {
 }
 
 export declare interface EruRoute {
-    get: <T>(idOrPath?: string | number | Omit<RequestConfig, 'body'>, options?: RequestConfig) => Promise<T>;
+    get: <T>(idOrPath?: string | number | Omit<EruConfig, 'body'>, options?: EruConfig) => Promise<T>;
     post: <T>(idOrPath: string | number | object, body?: string | object) => Promise<T>;
     put: <T>(idOrPath: string | number | object, body?: string | object) => Promise<T>;
     patch: <T>(idOrPath: string | number | object, body?: string | object) => Promise<T>;
-    delete: <T>(idOrPath: string | number, options?: Omit<RequestConfig, 'body'>) => Promise<T>;
+    delete: <T>(idOrPath: string | number, options?: Omit<EruConfig, 'body'>) => Promise<T>;
     cancel: () => void;
-}
-
-declare interface RequestConfig {
-    query?: string | Record<string, string | number>;
-    body?: any;
-    headers?: HeadersInit;
 }
 
 export { }

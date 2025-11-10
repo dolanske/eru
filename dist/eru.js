@@ -1,27 +1,23 @@
 var m = Object.defineProperty;
-var o = (c, r, e) => r in c ? m(c, r, { enumerable: !0, configurable: !0, writable: !0, value: e }) : c[r] = e;
-var h = (c, r, e) => (o(c, typeof r != "symbol" ? r + "" : r, e), e);
-function l(c) {
-  if (!c)
+var b = (a, r, e) => r in a ? m(a, r, { enumerable: !0, configurable: !0, writable: !0, value: e }) : a[r] = e;
+var h = (a, r, e) => (b(a, typeof r != "symbol" ? r + "" : r, e), e);
+function i(a) {
+  if (!a)
     return "";
-  const r = Object.keys(c).map((e) => {
-    let f = c[e];
-    return Array.isArray(c[e]) && (f = c[e].join(",")), [e, f].map(encodeURIComponent).join("=");
+  const r = Object.keys(a).map((e) => {
+    let f = a[e];
+    return Array.isArray(a[e]) && (f = a[e].join(",")), [e, f].map(encodeURIComponent).join("=");
   }).join("&");
   return r ? `?${r}` : "";
 }
-function g(c) {
-  return typeof c == "function" || typeof c == "object" && !!c;
+function g(a) {
+  return typeof a == "function" || typeof a == "object" && !!a;
 }
-function b(c) {
-  const r = String(c);
-  return r ? r.replace(/^\/+/, "") : "";
-}
-function d(c, r) {
-  const e = String(c ?? ""), f = b(r), n = e.replace(/\/+$/, ""), t = String(f ?? "").replace(/^\/+/, "");
+function y(a, r) {
+  const e = String(a ?? ""), f = String(r ?? ""), n = e.replace(/\/+$/, ""), t = f.replace(/^\/+/, "");
   return t ? n ? `${n}/${t}` : `/${t}` : n;
 }
-class j {
+class o {
   constructor(r, e = {}) {
     h(this, "cfg");
     h(this, "basePath");
@@ -35,38 +31,38 @@ class j {
   }
   // Helper method for seting up PUT, PATCH and POST requests as their functionality is exactly the same
   patchBody(r, e, f, n, t) {
-    const a = Object.assign({}, this.cfg, t, {
+    const c = Object.assign({}, this.cfg, t, {
       method: r,
       body: JSON.stringify((n == null ? void 0 : n.body) ?? {})
-    }, n), s = `${d(e, f)}${l(n == null ? void 0 : n.query)}`;
-    return this.runRequest(s, a);
+    }, n), s = `${y(e, f)}${i(n == null ? void 0 : n.query)}`;
+    return this.runRequest(s, c);
   }
   patchBodyless(r, e, f, n, t) {
-    const a = Object.assign({}, this.cfg, t, {
+    const c = Object.assign({}, this.cfg, t, {
       method: r
     }, n);
-    delete a.body;
-    const s = `${d(e, f)}${l(n == null ? void 0 : n.query)}`;
-    return this.runRequest(s, a);
+    delete c.body;
+    const s = `${y(e, f)}${i(n == null ? void 0 : n.query)}`;
+    return this.runRequest(s, c);
   }
   runRequest(r, e) {
     return this.cfg.authTokenKey && (e.headers.Authorization = `Bearer ${localStorage.getItem(this.cfg.authTokenKey)}`), e.onLoading && e.onLoading(!0, e.method), e.body && (e.body = JSON.stringify(e.body)), new Promise((f, n) => fetch(this.basePath + r, e).then((t) => {
-      t.text().then((a) => {
+      t.text().then((c) => {
         if (!t.ok) {
           let u = null;
           try {
-            u = JSON.parse(a).message;
+            u = JSON.parse(c).message;
           } catch {
-            u = a;
+            u = c;
           }
-          const i = new Error(u || `[${t.status}] ${t.statusText}`);
-          e != null && e.onError && e.onError(i, e.method), this.cfg.rejectReturn ? f(this.cfg.rejectReturn) : n(i);
+          const l = new Error(u || `[${t.status}] ${t.statusText}`);
+          e != null && e.onError && e.onError(l, e.method), this.cfg.rejectReturn ? f(this.cfg.rejectReturn) : n(l);
         }
         let s;
         try {
-          s = JSON.parse(a);
+          s = JSON.parse(c);
         } catch {
-          s = a;
+          s = c;
         }
         f(s);
       });
@@ -80,24 +76,24 @@ class j {
     const f = e ?? {};
     let n = new AbortController();
     return f.signal = n.signal, {
-      get: (t, a) => {
-        const s = typeof t == "number" || typeof t == "string" ? String(t) : "", u = typeof t == "number" || typeof t == "string" ? a : t;
+      get: (t, c) => {
+        const s = typeof t == "number" || typeof t == "string" ? String(t) : "", u = typeof t == "number" || typeof t == "string" ? c : t;
         return this.patchBodyless("GET", r, s, u, f);
       },
-      delete: (t, a) => this.patchBodyless("DELETE", r, t, a, f),
-      post: (t, a) => (g(t) && (a = t, t = ""), this.patchBody("POST", r, String(t), { body: a }, f)),
-      put: (t, a) => (g(t) && (a = t, t = ""), this.patchBody("PUT", r, String(t), { body: a }, f)),
-      patch: (t, a) => (g(t) && (a = t, t = ""), this.patchBody("PATCH", r, String(t), { body: a }, f)),
+      delete: (t, c) => this.patchBodyless("DELETE", r, t, c, f),
+      post: (t, c) => (g(t) && (c = t, t = ""), this.patchBody("POST", r, String(t), { body: c }, f)),
+      put: (t, c) => (g(t) && (c = t, t = ""), this.patchBody("PUT", r, String(t), { body: c }, f)),
+      patch: (t, c) => (g(t) && (c = t, t = ""), this.patchBody("PATCH", r, String(t), { body: c }, f)),
       cancel: () => {
         n.abort(), n = new AbortController(), f.signal = n.signal;
       }
     };
   }
 }
-function $(c, r) {
-  return new j(c, r);
+function S(a, r) {
+  return new o(a, r);
 }
 export {
-  j as Eru,
-  $ as eru
+  o as Eru,
+  S as eru
 };

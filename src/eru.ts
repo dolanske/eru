@@ -5,7 +5,7 @@ export class Eru {
   cfg: EruConfig
   basePath: string
 
-  constructor(path: string, options: EruConfig = {}) {
+  constructor(basePath: string, options: EruConfig = {}) {
     this.cfg = Object.assign({
       mode: 'cors',
       authTokenKey: undefined,
@@ -13,21 +13,22 @@ export class Eru {
         Accept: 'application/json',
       },
     }, options)
-    this.basePath = path
+
+    this.basePath = basePath
   }
 
   // Helper method for seting up PUT, PATCH and POST requests as their functionality is exactly the same
-  private patchBody<T>(method: 'PUT' | 'PATCH' | 'POST', path: string, idOrPath: string | number, options: any, instanceOptions: any) {
+  private patchBody<T>(method: 'PUT' | 'PATCH' | 'POST', routePath: string, idOrPath: string | number, options: any, instanceOptions: any) {
     const patchOptions: SerializedEruOptions = Object.assign({}, this.cfg, instanceOptions, {
       method,
       body: JSON.stringify(options?.body ?? {}),
     }, options)
 
-    const fullPath = `${formatPathAndId(path, idOrPath)}${stringifyQuery(options?.query)}`
+    const fullPath = `${formatPathAndId(routePath, idOrPath)}${stringifyQuery(options?.query)}`
     return this.runRequest<T>(fullPath, patchOptions)
   }
 
-  private patchBodyless<T>(method: 'GET' | 'DELETE', path: string, idOrPath: string | number, options: any, instanceOptions: any) {
+  private patchBodyless<T>(method: 'GET' | 'DELETE', routePath: string, idOrPath: string | number, options: any, instanceOptions: any) {
     const patchOptions: SerializedEruOptions = Object.assign({}, this.cfg, instanceOptions, {
       method,
     }, options)
@@ -35,11 +36,11 @@ export class Eru {
     // In case idiots pass a body
     delete patchOptions.body
 
-    const fullPath = `${formatPathAndId(path, idOrPath)}${stringifyQuery(options?.query)}`
+    const fullPath = `${formatPathAndId(routePath, idOrPath)}${stringifyQuery(options?.query)}`
     return this.runRequest<T>(fullPath, patchOptions)
   }
 
-  private runRequest<T>(path: string, options: SerializedEruOptions): Promise<T> {
+  private runRequest<T>(finalPath: string, options: SerializedEruOptions): Promise<T> {
     if (this.cfg.authTokenKey)
       // @ts-expect-error options.headers are defined in the `cfg` defaults, which indeed are merged together in the patch functions
       options.headers.Authorization = `Bearer ${localStorage.getItem(this.cfg.authTokenKey)}`
@@ -51,7 +52,7 @@ export class Eru {
       options.body = JSON.stringify(options.body)
 
     return new Promise<T>((resolve, reject) => {
-      return fetch(this.basePath + path, options)
+      return fetch(this.basePath + finalPath, options)
         .then((res) => {
           res.text().then((text: string) => {
             // If something went wrong, we want to either get the error message from the request
@@ -112,7 +113,7 @@ export class Eru {
     })
   }
 
-  route(path: string, options?: EruConfig): EruRoute {
+  route(routePath: string, options?: EruConfig): EruRoute {
     const instanceOptions = options ?? {}
     let controller = new AbortController()
     instanceOptions.signal = controller.signal
@@ -120,30 +121,31 @@ export class Eru {
     return {
       get: <T>(id?: string | number | Omit<EruConfig, 'body'>, options?: EruConfig) => {
         const patchedId = (typeof id === 'number' || typeof id === 'string') ? String(id) : ''
-        const parsedOptions = (typeof id === 'number' || typeof id === 'string') ? options : id
-        return this.patchBodyless<T>('GET', path, patchedId, parsedOptions, instanceOptions)
+        const parsedOptions = (typeof id === 'number' || typeof id === 'string') ? options : {}
+
+        return this.patchBodyless<T>('GET', routePath, patchedId, parsedOptions, instanceOptions)
       },
-      delete: <T>(idOrPath: number | string, options?: Omit<EruConfig, 'body'>) => this.patchBodyless<T>('DELETE', path, idOrPath, options, instanceOptions),
+      delete: <T>(idOrPath: number | string, options?: Omit<EruConfig, 'body'>) => this.patchBodyless<T>('DELETE', routePath, idOrPath, options, instanceOptions),
       post: <T>(idOrPath: string | number | object, body?: string | object) => {
         if (isObject(idOrPath)) {
           body = idOrPath as object
           idOrPath = ''
         }
-        return this.patchBody<T>('POST', path, String(idOrPath), { body }, instanceOptions)
+        return this.patchBody<T>('POST', routePath, String(idOrPath), { body }, instanceOptions)
       },
       put: <T>(idOrPath: string | number | object, body?: string | object) => {
         if (isObject(idOrPath)) {
           body = idOrPath as object
           idOrPath = ''
         }
-        return this.patchBody<T>('PUT', path, String(idOrPath), { body }, instanceOptions)
+        return this.patchBody<T>('PUT', routePath, String(idOrPath), { body }, instanceOptions)
       },
       patch: <T>(idOrPath: string | number | object, body?: string | object) => {
         if (isObject(idOrPath)) {
           body = idOrPath as object
           idOrPath = ''
         }
-        return this.patchBody<T>('PATCH', path, String(idOrPath), { body }, instanceOptions)
+        return this.patchBody<T>('PATCH', routePath, String(idOrPath), { body }, instanceOptions)
       },
       cancel: () => {
         // Abort all requests and assign a new abort controller instance

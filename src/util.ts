@@ -20,36 +20,35 @@ export function isObject(val: any) {
 }
 
 /**
- * Formats the given ID or path by removing leading slashes.
- * @param idOrPath The ID or path to format.
- * @returns String
- */
-export function formatIdOrPath(idOrPath: string | number): string {
-  const _idOrPath = String(idOrPath)
-  return _idOrPath ? _idOrPath.replace(/^\/+/, '') : ''
-}
-
-/**
  * Build a normalized path from a base `path` and an `idOrPath`.
  * Ensures there is exactly one slash between them (and removes extra trailing/leading slashes).
  * - If idOrPath is empty, returns cleaned `path`.
  * - If path is empty, returns `/${idOrPath}` (ensures an initial slash).
  */
 export function formatPathAndId(path: string, idOrPath: string | number): string {
-  const left = String(path ?? '')
-  const right = String(idOrPath ?? '')
+  const leftRaw = String(path ?? '')
+  const rightRaw = String(idOrPath ?? '')
 
-  // Only remove trailing slashes from the left side
-  const leftTrimmed = left.replace(/\/+$/, '')
+  // Helper: split on forward or back slashes, remove empty parts
+  const splitSegments = (s: string) => s.split(/[\\/]+/).filter(Boolean)
 
-  // Only remove leading slashes from the right side
-  const rightTrimmed = right.replace(/^\/+/, '')
+  const leftSegments = splitSegments(leftRaw)
+  const rightSegments = splitSegments(rightRaw)
 
-  if (!rightTrimmed)
-    return leftTrimmed
+  const leftHasLeading = /^[\\/]/.test(leftRaw)
 
-  if (!leftTrimmed)
-    return `/${rightTrimmed}`
+  // If right is empty, return normalized left (preserve leading slash if present)
+  if (rightSegments.length === 0) {
+    if (leftSegments.length === 0)
+      return ''
+    return leftHasLeading ? `/${leftSegments.join('/')}` : leftSegments.join('/')
+  }
 
-  return `${leftTrimmed}/${rightTrimmed}`
+  // If left is empty, always return leading slash + right segments
+  if (leftSegments.length === 0)
+    return `/${rightSegments.join('/')}`
+
+  // Both present: preserve left's leading slash if it existed
+  const joined = `${leftSegments.join('/')}/${rightSegments.join('/')}`
+  return leftHasLeading ? `/${joined}` : joined
 }

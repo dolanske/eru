@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatIdOrPath, formatPathAndId, isObject, stringifyQuery } from '../src/util'
+import { formatPathAndId, isObject, stringifyQuery } from '../src/util'
 
 describe('util.stringifyQuery', () => {
   it('returns empty string for falsy input', () => {
@@ -50,21 +50,6 @@ describe('util.isObject', () => {
   })
 })
 
-describe('util.formatIdOrPath', () => {
-  it('removes leading slashes', () => {
-    expect(formatIdOrPath('/abc')).toBe('abc')
-    expect(formatIdOrPath('///abc')).toBe('abc')
-  })
-
-  it('returns numeric values as strings', () => {
-    expect(formatIdOrPath(123)).toBe('123')
-  })
-
-  it('returns empty string for empty input', () => {
-    expect(formatIdOrPath('')).toBe('')
-  })
-})
-
 describe('util.formatPathAndId', () => {
   it('joins path and id with single slash', () => {
     expect(formatPathAndId('users', '1')).toBe('users/1')
@@ -79,6 +64,8 @@ describe('util.formatPathAndId', () => {
   it('returns /id when path empty', () => {
     expect(formatPathAndId('', '1')).toBe('/1')
     expect(formatPathAndId('/', '1')).toBe('/1')
+
+    expect(formatPathAndId('/server', '/1/channel')).toBe('/server/1/channel')
   })
 
   it('returns path when id empty', () => {
@@ -98,12 +85,12 @@ describe('util.formatPathAndId', () => {
 
   it('keeps left leading slashes intact (per current implementation)', () => {
     // If left has multiple leading slashes, they are preserved by the current implementation
-    expect(formatPathAndId('///api//', 'v1')).toBe('///api/v1')
+    expect(formatPathAndId('///api//', 'v1')).toBe('/api/v1')
   })
 
   it('preserves internal slashes in both parts', () => {
     expect(formatPathAndId('a/b/c', 'd/e')).toBe('a/b/c/d/e')
-    expect(formatPathAndId('/a//b/', '/c//d')).toBe('/a//b/c//d')
-    expect(formatPathAndId('users', 'a//b')).toBe('users/a//b')
+    expect(formatPathAndId('/a//b/', '/c//d')).toBe('/a/b/c/d')
+    expect(formatPathAndId('users', 'a//b')).toBe('users/a/b')
   })
 })

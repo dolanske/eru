@@ -1,5 +1,5 @@
-import type { EruConfig, EruRoute, RequestConfig, SerializedEruOptions } from './types'
-import { isObject, stringifyQuery } from './util'
+import type { EruConfig, EruRoute, SerializedEruOptions } from './types'
+import { formatPathAndId, isObject, stringifyQuery } from './util'
 
 export class Eru {
   cfg: EruConfig
@@ -17,31 +17,26 @@ export class Eru {
   }
 
   // Helper method for seting up PUT, PATCH and POST requests as their functionality is exactly the same
-  private patchBody<T>(method: 'PUT' | 'PATCH' | 'POST', path: string, id: string | number, options: any, instanceOptions: any) {
-    const patchOptions: SerializedEruOptions = Object.assign(this.cfg, instanceOptions, {
+  private patchBody<T>(method: 'PUT' | 'PATCH' | 'POST', path: string, idOrPath: string | number, options: any, instanceOptions: any) {
+    const patchOptions: SerializedEruOptions = Object.assign({}, this.cfg, instanceOptions, {
       method,
       body: JSON.stringify(options?.body ?? {}),
     }, options)
 
-    return this.runRequest<T>(`${path}${id ? `/${id}` : ''}${stringifyQuery(options?.query)}`, patchOptions)
+    const fullPath = `${formatPathAndId(path, idOrPath)}${stringifyQuery(options?.query)}`
+    return this.runRequest<T>(fullPath, patchOptions)
   }
 
-  private patchBodyless<T>(method: 'GET' | 'DELETE', path: string, id: string | number, options: any, instanceOptions: any) {
-    const patchOptions: SerializedEruOptions = Object.assign(this.cfg, instanceOptions, {
+  private patchBodyless<T>(method: 'GET' | 'DELETE', path: string, idOrPath: string | number, options: any, instanceOptions: any) {
+    const patchOptions: SerializedEruOptions = Object.assign({}, this.cfg, instanceOptions, {
       method,
     }, options)
+
     // In case idiots pass a body
     delete patchOptions.body
 
-    const _id = String(id)
-
-    const idOrPath = _id
-      ? _id.startsWith('/')
-        ? _id.slice(1)
-        : _id
-      : ''
-
-    return this.runRequest<T>(`${path}${idOrPath}${stringifyQuery(options?.query)}`, patchOptions)
+    const fullPath = `${formatPathAndId(path, idOrPath)}${stringifyQuery(options?.query)}`
+    return this.runRequest<T>(fullPath, patchOptions)
   }
 
   private runRequest<T>(path: string, options: SerializedEruOptions): Promise<T> {
@@ -56,7 +51,7 @@ export class Eru {
       options.body = JSON.stringify(options.body)
 
     return new Promise<T>((resolve, reject) => {
-      fetch(this.basePath + path, options)
+      return fetch(this.basePath + path, options)
         .then((res) => {
           res.text().then((text: string) => {
             // If something went wrong, we want to either get the error message from the request
@@ -123,12 +118,12 @@ export class Eru {
     instanceOptions.signal = controller.signal
 
     return {
-      get: <T>(id?: string | number | Omit<RequestConfig, 'body'>, options?: RequestConfig) => {
+      get: <T>(id?: string | number | Omit<EruConfig, 'body'>, options?: EruConfig) => {
         const patchedId = (typeof id === 'number' || typeof id === 'string') ? String(id) : ''
         const parsedOptions = (typeof id === 'number' || typeof id === 'string') ? options : id
         return this.patchBodyless<T>('GET', path, patchedId, parsedOptions, instanceOptions)
       },
-      delete: <T>(idOrPath: number | string, options?: Omit<RequestConfig, 'body'>) => this.patchBodyless<T>('DELETE', path, idOrPath, options, instanceOptions),
+      delete: <T>(idOrPath: number | string, options?: Omit<EruConfig, 'body'>) => this.patchBodyless<T>('DELETE', path, idOrPath, options, instanceOptions),
       post: <T>(idOrPath: string | number | object, body?: string | object) => {
         if (isObject(idOrPath)) {
           body = idOrPath as object

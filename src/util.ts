@@ -18,3 +18,40 @@ export function stringifyQuery(query: any): string {
 export function isObject(val: any) {
   return typeof val === 'function' || (typeof val === 'object' && !!val)
 }
+
+/**
+ * Formats the given ID or path by removing leading slashes.
+ * @param idOrPath The ID or path to format.
+ * @returns String
+ */
+export function formatIdOrPath(idOrPath: string | number): string {
+  const _idOrPath = String(idOrPath)
+  return _idOrPath ? _idOrPath.replace(/^\/+/, '') : ''
+}
+
+/**
+ * Build a normalized path from a base `path` and an `idOrPath`.
+ * Ensures there is exactly one slash between them (and removes extra trailing/leading slashes).
+ * - If idOrPath is empty, returns cleaned `path`.
+ * - If path is empty, returns `/${idOrPath}` (ensures an initial slash).
+ */
+export function formatPathAndId(path: string, idOrPath: string | number): string {
+  const left = String(path ?? '')
+  const right = formatIdOrPath(idOrPath)
+
+  // Remove trailing slashes from left, remove leading slashes from right (formatIdOrPath already does leading)
+  const leftTrimmed = left.replace(/\/+$/, '')
+  const rightTrimmed = String(right ?? '').replace(/^\/+/, '')
+
+  if (!rightTrimmed) {
+    // preserve at least what leftTrimmed has (could be empty)
+    return leftTrimmed
+  }
+
+  if (!leftTrimmed) {
+    // when no left part, make sure returned path starts with a single slash
+    return `/${rightTrimmed}`
+  }
+
+  return `${leftTrimmed}/${rightTrimmed}`
+}

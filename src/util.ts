@@ -37,21 +37,19 @@ export function formatIdOrPath(idOrPath: string | number): string {
  */
 export function formatPathAndId(path: string, idOrPath: string | number): string {
   const left = String(path ?? '')
-  const right = formatIdOrPath(idOrPath)
+  const right = String(idOrPath ?? '')
 
-  // Remove trailing slashes from left, remove leading slashes from right (formatIdOrPath already does leading)
+  // Only remove trailing slashes from the left side
   const leftTrimmed = left.replace(/\/+$/, '')
-  const rightTrimmed = String(right ?? '').replace(/^\/+/, '')
 
-  if (!rightTrimmed) {
-    // preserve at least what leftTrimmed has (could be empty)
+  // Only remove leading slashes from the right side
+  const rightTrimmed = right.replace(/^\/+/, '')
+
+  if (!rightTrimmed)
     return leftTrimmed
-  }
 
-  if (!leftTrimmed) {
-    // when no left part, make sure returned path starts with a single slash
+  if (!leftTrimmed)
     return `/${rightTrimmed}`
-  }
 
   return `${leftTrimmed}/${rightTrimmed}`
 }

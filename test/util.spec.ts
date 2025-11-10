@@ -100,4 +100,10 @@ describe('util.formatPathAndId', () => {
     // If left has multiple leading slashes, they are preserved by the current implementation
     expect(formatPathAndId('///api//', 'v1')).toBe('///api/v1')
   })
+
+  it('preserves internal slashes in both parts', () => {
+    expect(formatPathAndId('a/b/c', 'd/e')).toBe('a/b/c/d/e')
+    expect(formatPathAndId('/a//b/', '/c//d')).toBe('/a//b/c//d')
+    expect(formatPathAndId('users', 'a//b')).toBe('users/a//b')
+  })
 })
